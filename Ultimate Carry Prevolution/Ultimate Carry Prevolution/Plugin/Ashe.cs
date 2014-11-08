@@ -50,7 +50,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				var harassMenu = new Menu("Harass", "Harass");
 				{
 					AddSpelltoMenu(harassMenu, "Q", true);
-					AddSpelltoMenu(harassMenu, "E", true);
+					AddSpelltoMenu(harassMenu, "W", true);
 					AddManaManagertoMenu(harassMenu, 30);
 					champMenu.AddSubMenu(harassMenu);
 				}
@@ -203,7 +203,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 																	MyHero.ServerPosition.To2D()
 																		.Distance(W.GetPrediction(enemy).CastPosition.To2D(),
 																			obj.Position.To2D(), true) <
-																	50))
+																	25))
 						return;
 					W.Cast(enemy, UsePackets());
 				}
