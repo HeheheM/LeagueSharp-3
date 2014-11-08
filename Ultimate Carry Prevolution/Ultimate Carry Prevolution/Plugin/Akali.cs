@@ -103,7 +103,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				comboDamage += jumpCount > 0 ? MyHero.GetSpellDamage(target, SpellSlot.R) * jumpCount : MyHero.GetSpellDamage(target, SpellSlot.R);
 			// Items comes soon
 
-			return (float)(comboDamage + ObjectManager.Player.GetAutoAttackDamage(target));
+			return (float)(comboDamage + MyHero.GetAutoAttackDamage(target));
 		}
 
 		public override void OnDraw()

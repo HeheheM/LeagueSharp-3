@@ -7,7 +7,7 @@ namespace xSLx_Data
 	{
 		public List<Spell> Spelllist;
  		
-		public List<Spell> GetSpellsCollision(List<Obj_AI_Hero> ChampionList)
+		public List<Spell> GetSpellsCollision(List<Obj_AI_Hero> championList)
 		{
 			GenerateList();
 			return Spelllist;

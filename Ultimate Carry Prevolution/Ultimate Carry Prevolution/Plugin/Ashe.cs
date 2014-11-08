@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using xSLx_Orbwalker;
@@ -12,8 +10,9 @@ namespace Ultimate_Carry_Prevolution.Plugin
 {
 	class Ashe:Champion
 	{
-		private bool QActive;
-		private int QCheckTimer;
+		private bool _qActive;
+		private int _qCheckTimer;
+
 		public Ashe()
 		{
 			SetSpells();
@@ -137,18 +136,18 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private void QHandler()
 		{
-			if(Environment.TickCount - QCheckTimer > 300)
+			if(Environment.TickCount - _qCheckTimer > 300)
 			{
-				QCheckTimer = Environment.TickCount;
-				QActive = MyHero.Spellbook.GetSpell(SpellSlot.Q).ToggleState == 2;
-				if(AllHerosEnemy.Where(xSLxOrbwalker.InAutoAttackRange).Where(enemy => (xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Combo || xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Harass) && IsSpellActive("Q")).Any(enemy => !QActive))
+				_qCheckTimer = Environment.TickCount;
+				_qActive = MyHero.Spellbook.GetSpell(SpellSlot.Q).ToggleState == 2;
+				if(AllHerosEnemy.Where(xSLxOrbwalker.InAutoAttackRange).Where(enemy => (xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Combo || xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Harass) && IsSpellActive("Q")).Any(enemy => !_qActive))
 				{
 					Q.Cast();
 					return;
 				}
 				if((!AllHerosEnemy.Any(xSLxOrbwalker.InAutoAttackRange) ||
 					!(xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Harass ||
-					  xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Combo)) && QActive)
+					  xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Combo)) && _qActive)
 					Q.Cast();
 			}
 		}
