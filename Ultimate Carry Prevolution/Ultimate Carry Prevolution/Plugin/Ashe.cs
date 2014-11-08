@@ -13,6 +13,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 	class Ashe:Champion
 	{
 		private bool QActive;
+		private int QCheckTimer;
 		public Ashe()
 		{
 			SetSpells();
@@ -35,7 +36,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private void LoadMenu()
 		{
-			var champMenu = new Menu("Ahri Plugin", "Ahri");
+			var champMenu = new Menu("Ashe Plugin", "Ashe");
 			{
 				var comboMenu = new Menu("Combo", "Combo");
 				{
@@ -43,15 +44,15 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					AddSpelltoMenu(comboMenu, "W", true);
 					AddSpelltoMenu(comboMenu, "E", true);
 					comboMenu.AddItem(new MenuItem("Combo_useR_onKillHelp", "Use R to Safe Kill").SetValue(true));
-					comboMenu.AddItem(new MenuItem("Combo_useR_onKillHelp", "Use R KS if Out of Range").SetValue(true));
+					comboMenu.AddItem(new MenuItem("Combo_useR_onoutofRange", "Use R KS if Out of Range").SetValue(true));
 					champMenu.AddSubMenu(comboMenu);
 				}
 				var harassMenu = new Menu("Harass", "Harass");
 				{
 					AddSpelltoMenu(harassMenu, "Q", true);
 					//AddSpelltoMenu(harassMenu, "E", true);
-					//AddManaManagertoMenu(harassMenu, 30);
-					//champMenu.AddSubMenu(harassMenu);
+					AddManaManagertoMenu(harassMenu, 30);
+					champMenu.AddSubMenu(harassMenu);
 				}
 				var laneClearMenu = new Menu("LaneClear", "LaneClear");
 				{
@@ -128,30 +129,35 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					Utility.DrawCircle(MyHero.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
 
 		}
-	
+
 		public override void OnPassive()
 		{
+			QHandler();
 			SetERange();
-			if(xSLxOrbwalker.CurrentMode != xSLxOrbwalker.Mode.Combo && xSLxOrbwalker.CurrentMode != xSLxOrbwalker.Mode.Harass)
+		}
+
+		private void QHandler()
+		{
+			if(Environment.TickCount - QCheckTimer > 300)
 			{
-				if(QActive)
+				QCheckTimer = Environment.TickCount;
+				QActive = MyHero.Spellbook.GetSpell(SpellSlot.Q).ToggleState == 2;
+				if(AllHerosEnemy.Where(xSLxOrbwalker.InAutoAttackRange).Where(enemy => (xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Combo || xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Harass) && IsSpellActive("Q")).Any(enemy => !QActive))
 				{
 					Q.Cast();
-					QActive = false;
+					return;
 				}
-			}
-			if(xSLxOrbwalker.CurrentMode != xSLxOrbwalker.Mode.Harass)
-				return;
-			if(xSLxOrbwalker.GetPossibleTarget().IsMinion  && QActive)
-			{
-				Q.Cast();
-				QActive = false;
+				if((!AllHerosEnemy.Any(xSLxOrbwalker.InAutoAttackRange) ||
+					!(xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Harass ||
+					  xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Combo)) && QActive)
+					Q.Cast();
 			}
 		}
 
 		public override void OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
 		{
-			if (R.IsReady() && Menu.Item("Misc_useR_Interrupt").GetValue<bool>() && unit.IsValidTarget(R.Range))
+			if(R.IsReady() && Menu.Item("Misc_useR_Interrupt").GetValue<bool>() && unit.IsValidTarget(R.Range) &&
+				spell.DangerLevel >= InterruptableDangerLevel.Medium)
 				R.Cast(unit, UsePackets());
 		}
 
@@ -165,7 +171,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		public override void OnCombo()
 		{
-			
+	
+		}
+
+		public override void OnHarass()
+		{
+
 		}
 
 		private void SetERange()
@@ -173,30 +184,6 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			var range = 1750 + (E.Level*750);
 			E.Range = range;
 		}
-		
-		public override void OnSendPacket(GamePacketEventArgs args)
-		{
-			if(!IsSpellActive("Q") || !ManaManagerAllowCast())
-				return;
-			if(args.PacketData[0] != Packet.C2S.Move.Header ||
-				Packet.C2S.Move.Decoded(args.PacketData).SourceNetworkId != MyHero.NetworkId ||
-				Packet.C2S.Move.Decoded(args.PacketData).MoveType != 3)
-				return;
-			if(!QActive)
-				QActive = MyHero.Buffs.Any(buff => buff.Name == "FrostShot");
-			var heroFound = AllHerosEnemy.Any(hero => hero.NetworkId == Packet.C2S.Move.Decoded(args.PacketData).TargetNetworkId);
-			if(heroFound)
-			{
-				if(!QActive)
-					Q.Cast();
-				QActive = true;
-			}
-			else
-			{
-				if(QActive)
-					Q.Cast();
-				QActive = false;
-			}
-		}
+
 	}
 }

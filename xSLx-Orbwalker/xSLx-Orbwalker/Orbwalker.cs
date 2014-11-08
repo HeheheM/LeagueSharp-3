@@ -392,14 +392,23 @@ namespace xSLx_Orbwalker
 
 		public static Obj_AI_Base GetPossibleTarget()
 		{
-			if(ForcedTarget != null)
+			if (ForcedTarget != null)
 			{
-				if(InAutoAttackRange(ForcedTarget))
+				if (InAutoAttackRange(ForcedTarget))
 					return ForcedTarget;
 				ForcedTarget = null;
 			}
 
-			Obj_AI_Base tempTarget = null;
+			if(CurrentMode == Mode.Harass || CurrentMode == Mode.LaneClear || CurrentMode == Mode.LaneFreeze)
+			{
+				foreach(
+					var turret in
+						ObjectManager.Get<Obj_AI_Turret>().Where(turret => turret.IsValidTarget(GetAutoAttackRange(MyHero, turret))))
+					return turret;
+			}
+		
+
+		Obj_AI_Base tempTarget = null;
 
 			if(Menu.Item("xSLxOrbwalker_Misc_Priority_Unit").GetValue<StringList>().SelectedIndex == 1 &&
 				(CurrentMode == Mode.Harass || CurrentMode == Mode.LaneClear))
@@ -606,10 +615,10 @@ namespace xSLx_Orbwalker
 			foreach(var enemy in AllEnemys.Where(hero => hero.IsValidTarget() && InAutoAttackRange(hero)))
 			{
 				var killHits = CountKillhits(enemy);
-                killableEnemy = enemy;
 				if(killableEnemy != null && (!(killHits < hitsToKill) || enemy.HasBuffOfType(BuffType.Invulnerability)))
 					continue;
 				hitsToKill = killHits;
+				killableEnemy = enemy;
 			}
 			return hitsToKill <= 3 ? killableEnemy : SimpleTs.GetTarget(GetAutoAttackRange() + 100, SimpleTs.DamageType.Physical);
 		}

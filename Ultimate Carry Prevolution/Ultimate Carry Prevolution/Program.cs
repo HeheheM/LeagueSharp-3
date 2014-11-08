@@ -13,8 +13,8 @@ namespace Ultimate_Carry_Prevolution
 
 		private static void OnGameStart(EventArgs args)
 		{
-			Game.PrintChat("Its Released when its Released, not when you find our repo.");
-			//LoadUC();
+			//Game.PrintChat("Its Released when its Released, not when you find our repo.");
+			LoadUC();
 		}
 
 		private static void LoadUC()
