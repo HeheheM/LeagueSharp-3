@@ -50,16 +50,15 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				var harassMenu = new Menu("Harass", "Harass");
 				{
 					AddSpelltoMenu(harassMenu, "Q", true);
-					//AddSpelltoMenu(harassMenu, "E", true);
+					AddSpelltoMenu(harassMenu, "E", true);
 					AddManaManagertoMenu(harassMenu, 30);
 					champMenu.AddSubMenu(harassMenu);
 				}
 				var laneClearMenu = new Menu("LaneClear", "LaneClear");
 				{
-					//AddSpelltoMenu(laneClearMenu, "Q", true);
-					//AddSpelltoMenu(laneClearMenu, "W", true);
-					//AddManaManagertoMenu(laneClearMenu, 20);
-					//champMenu.AddSubMenu(laneClearMenu);
+					AddSpelltoMenu(laneClearMenu, "W", true);
+					AddManaManagertoMenu(laneClearMenu, 20);
+					champMenu.AddSubMenu(laneClearMenu);
 				}
 				var miscMenu = new Menu("Misc", "Misc");
 				{
@@ -179,9 +178,17 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				Cast_R(2);
 		}
 
+
 		public override void OnHarass()
 		{
+			if(IsSpellActive("W") && ManaManagerAllowCast())
+				Cast_W(true);
+		}
 
+		public override void OnLaneClear()
+		{
+			if(IsSpellActive("W") && ManaManagerAllowCast())
+				Cast_W(false);
 		}
 
 		private void Cast_W(bool mode)
@@ -200,6 +207,13 @@ namespace Ultimate_Carry_Prevolution.Plugin
 						return;
 					W.Cast(enemy, UsePackets());
 				}
+			}
+			else
+			{
+				var allMinions = MinionManager.GetMinions(MyHero.Position, W.Range, MinionTypes.All, MinionTeam.NotAlly);
+				var farmlocation = W.GetCircularFarmLocation(allMinions, 300);
+				if(farmlocation.Position.Distance(MyHero.Position) > 300 && (farmlocation.MinionsHit >= 3 || allMinions.Any(x => x.Team == GameObjectTeam.Neutral)))
+					W.Cast(farmlocation.Position, UsePackets());
 			}
 		}
 
