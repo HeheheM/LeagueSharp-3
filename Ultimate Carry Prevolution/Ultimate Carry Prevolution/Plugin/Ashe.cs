@@ -44,7 +44,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					AddSpelltoMenu(comboMenu, "W", true);
 					AddSpelltoMenu(comboMenu, "E", true);
 					comboMenu.AddItem(new MenuItem("Combo_useR_onKillHelp", "Use R to Safe Kill").SetValue(true));
-					comboMenu.AddItem(new MenuItem("Combo_useR_onoutofRange", "Use R KS if Out of Range").SetValue(true));
+					comboMenu.AddItem(new MenuItem("Combo_useR_onoutofRange", "Use R KS if Out of Range").SetValue(true));				
 					champMenu.AddSubMenu(comboMenu);
 				}
 				var harassMenu = new Menu("Harass", "Harass");
@@ -171,12 +171,59 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		public override void OnCombo()
 		{
-	
+			if (IsSpellActive("W"))
+				Cast_W(true);
+			if(Menu.Item("Combo_useR_onKillHelp").GetValue< bool>())
+				Cast_R(1);
+			if(Menu.Item("Combo_useR_onoutofRange").GetValue<bool>())
+				Cast_R(2);
 		}
 
 		public override void OnHarass()
 		{
 
+		}
+
+		private void Cast_W(bool mode)
+		{
+			if (!W.IsReady())
+				return;
+			if (mode)
+			{
+				foreach (var enemy in AllHerosEnemy.Where( enemy => enemy.IsValidTarget( W.Range)))
+				{
+					if(ObjectManager.Get<Obj_AI_Base>().Any(obj => obj.IsValidTarget() && obj.IsMinion &&
+																	MyHero.ServerPosition.To2D()
+																		.Distance(W.GetPrediction(enemy).CastPosition.To2D(),
+																			obj.Position.To2D(), true) <
+																	50))
+						return;
+					W.Cast(enemy, UsePackets());
+				}
+			}
+		}
+
+		private void Cast_R(int mode)
+		{
+			if (!R.IsReady())
+				return;
+			var targetMode1 = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
+			var targetMode2 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+			switch (mode)
+			{
+				case 1:
+					if (targetMode1 == null)
+						return;
+					if (targetMode1.Health < GetComboDamage(targetMode1))
+						R.Cast(targetMode1, UsePackets());
+					break;
+				case 2:
+					if(targetMode2 == null)
+						return;
+					if (targetMode2.Health < MyHero.GetSpellDamage(targetMode2, SpellSlot.R)*0.9 && !targetMode2.IsValidTarget(W.Range))
+						R.Cast(targetMode2, UsePackets());
+					break;
+			}
 		}
 
 		private void SetERange()

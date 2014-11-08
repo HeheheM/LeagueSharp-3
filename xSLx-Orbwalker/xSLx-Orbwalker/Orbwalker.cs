@@ -398,14 +398,6 @@ namespace xSLx_Orbwalker
 					return ForcedTarget;
 				ForcedTarget = null;
 			}
-
-			if(CurrentMode == Mode.Harass || CurrentMode == Mode.LaneClear || CurrentMode == Mode.LaneFreeze)
-			{
-				foreach(
-					var turret in
-						ObjectManager.Get<Obj_AI_Turret>().Where(turret => turret.IsValidTarget(GetAutoAttackRange(MyHero, turret))))
-					return turret;
-			}
 		
 
 		Obj_AI_Base tempTarget = null;
@@ -453,6 +445,14 @@ namespace xSLx_Orbwalker
 				tempTarget = GetBestHeroTarget();
 				if(tempTarget != null)
 					return tempTarget;
+			}
+
+			if(CurrentMode == Mode.Harass || CurrentMode == Mode.LaneClear || CurrentMode == Mode.LaneFreeze)
+			{
+				foreach(
+					var turret in
+						ObjectManager.Get<Obj_AI_Turret>().Where(turret => turret.IsValidTarget(GetAutoAttackRange(MyHero, turret))))
+					return turret;
 			}
 
 			float[] maxhealth;
