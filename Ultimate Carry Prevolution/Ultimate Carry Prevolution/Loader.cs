@@ -10,7 +10,7 @@ namespace Ultimate_Carry_Prevolution
 		public Loader()
 		{
 			Chat.WellCome();
-			LoadChampionPlugin();
+			//LoadChampionPlugin();
 		}
 
 		private void LoadChampionPlugin()

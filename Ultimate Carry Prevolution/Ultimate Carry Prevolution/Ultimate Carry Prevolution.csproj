@@ -89,6 +89,8 @@
     <Compile Include="Plugin\Blitzcrank.cs" />
     <Compile Include="Plugin\Caitlyn.cs" />
     <Compile Include="Plugin\Corki.cs" />
+    <Compile Include="Plugin\Jinx.cs" />
+    <Compile Include="Plugin\Leona.cs" />
     <Compile Include="Plugin\Lucian.cs" />
     <Compile Include="Plugin\Vayne.cs" />
     <Compile Include="Program.cs" />

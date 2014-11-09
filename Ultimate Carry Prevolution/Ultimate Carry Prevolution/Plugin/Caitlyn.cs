@@ -236,7 +236,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
         {
             foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range) && !x.IsDead && x.IsEnemy).OrderBy(x => x.Health))
             {
-                var health = unit.Health + unit.HPRegenRate + 10;
+                var health = unit.Health + unit.HPRegenRate + 25;
                 if (ObjectManager.Player.GetSpellDamage(unit, SpellSlot.R) > health)
                 {
                     R.CastOnUnit(unit, UsePackets());

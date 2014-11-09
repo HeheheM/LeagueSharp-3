@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Odbc;
 using System.Linq;
-using System.Security.AccessControl;
-using System.Text;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -80,7 +77,12 @@ namespace Ultimate_Carry_Prevolution
 			Menu.AddSubMenu(new Menu("UC-Team", "Credits"));
 			Menu.SubMenu("Credits").AddItem(new MenuItem("Lexxes", "Lexxes (Austria)"));
 			Menu.SubMenu("Credits").AddItem(new MenuItem("xSalice", "xSalice (US)"));
+			Menu.SubMenu("Credits").AddItem(new MenuItem("InjectionDev", "InjectionDev (???)"));
 
+			//TargetSelector
+			var targetselectormenu = new Menu("TargetSelector", "Common_TargetSelector");
+			SimpleTs.AddToMenu(targetselectormenu);
+			Menu.AddSubMenu(targetselectormenu);
 			//PacketMenu
 			Menu.AddSubMenu(new Menu("Packet Setting", "Packets"));
 			Menu.SubMenu("Packets").AddItem(new MenuItem("usePackets", "Use Packets").SetValue(false));

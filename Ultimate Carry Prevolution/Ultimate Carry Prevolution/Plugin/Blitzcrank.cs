@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -24,7 +21,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
             Q = new Spell(SpellSlot.Q, 950);
             Q.SetSkillshot(0.22f, 70f, 1800, true, SkillshotType.SkillshotLine);
 
-            W = new Spell(SpellSlot.W, float.MaxValue);
+            W = new Spell(SpellSlot.W);
 
             E = new Spell(SpellSlot.E, 140);
 
@@ -33,7 +30,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         private void LoadMenu()
         {
-            var champMenu = new Menu("Caitlyn Plugin", "Caitlyn");
+            var champMenu = new Menu("Blitzcrank Plugin", "Blitzcrank");
             {
                 var qMenu = new Menu("QMenu", "QMenu");
                 {
@@ -46,6 +43,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
                     foreach (var enemy in ObjectManager.Get<Obj_AI_Hero>().Where(enemy => enemy.Team != MyHero.Team))
                         qMenu.SubMenu("Dont_Q").AddItem(new MenuItem("Dont_Q" + enemy.BaseSkinName, enemy.BaseSkinName).SetValue(false));
+
+                    champMenu.AddSubMenu(qMenu);
                 }
 
                 var comboMenu = new Menu("Combo", "Combo");
@@ -161,31 +160,51 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     Utility.DrawCircle(MyHero.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
         }
 
+        public override void OnSendPacket(GamePacketEventArgs args)
+        {
+            if (IsSpellActive("Q") && Menu.Item("Q_AA_Windup").GetValue<bool>())
+            {
+                var g = new GamePacket(args.PacketData);
+	            if (g.Header != 0xFE) return;
+	            if (Packet.MultiPacket.OnAttack.Decoded(args.PacketData).Type != Packet.AttackTypePacket.TargetedAA)
+		            return;
+	            g.Position = 1;
+	            var target = ObjectManager.GetUnitByNetworkId<Obj_AI_Base>(g.ReadInteger());
+	            if (!(target is Obj_AI_Hero) || !target.IsEnemy) return;
+	            if (!(Vector3.Distance(target.Position, ObjectManager.Player.Position) <= 925)) return;
+	            var qCollisionCount = Q.GetPrediction(target).CollisionObjects.Count;
+	            if (qCollisionCount == 0)
+	            {
+		            Q.Cast(target);
+	            }
+            }
+        }
+
         public override void OnPassive()
         {
             //change Q range
-            var Q_Max_Range = Menu.Item("Q_Max_Range").GetValue<Slider>().Value;
-            Q.Range = Q_Max_Range;
+            var qMaxRange = Menu.Item("Q_Max_Range").GetValue<Slider>().Value;
+            Q.Range = qMaxRange;
 
             MEC_R();
 
             //Auto Q
-            var Q_Dashing = Menu.Item("Auto_Q_Dashing").GetValue<bool>();
-            var Q_Immobile = Menu.Item("Auto_Q_Immobile").GetValue<bool>();
-            var Q_Slow = Menu.Item("Auto_Q_Slow").GetValue<bool>();
+            var qDashing = Menu.Item("Auto_Q_Dashing").GetValue<bool>();
+            var qImmobile = Menu.Item("Auto_Q_Immobile").GetValue<bool>();
+            var qSlow = Menu.Item("Auto_Q_Slow").GetValue<bool>();
 
             foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(Q.Range) && x.IsEnemy && 
                 Menu.Item("Dont_Q" + x.BaseSkinName) != null && Menu.Item("Dont_Q" + x.BaseSkinName).GetValue<bool>() == false))
             {
-                var Q_Prediction = Q.GetPrediction(target);
+                var qPrediction = Q.GetPrediction(target);
 
-                if (Q_Prediction.Hitchance == HitChance.Immobile && Q_Immobile && Q.IsReady())
+                if (qPrediction.Hitchance == HitChance.Immobile && qImmobile && Q.IsReady())
                     Q.Cast(target, UsePackets());
 
-                if (Q_Prediction.Hitchance == HitChance.Dashing && Q_Dashing && Q.IsReady())
+                if (qPrediction.Hitchance == HitChance.Dashing && qDashing && Q.IsReady())
                     Q.Cast(target, UsePackets());
 
-                if (target.HasBuffOfType(BuffType.Slow) && Q_Slow && Q.IsReady())
+                if (target.HasBuffOfType(BuffType.Slow) && qSlow && Q.IsReady())
                     Q.Cast(target, UsePackets());
             }
         }
@@ -212,11 +231,11 @@ namespace Ultimate_Carry_Prevolution.Plugin
             if (IsSpellActive("E") && E.IsReady() && MyHero.Distance(target) < 300 && !Menu.Item("Misc_E_Reset").GetValue<bool>())
                 E.Cast();
 
-            if (IsSpellActive("R") && R.IsReady())
+            if (IsSpellActive("R") && R.IsReady() && !Q.IsReady())
             {
-                var R_Pred = Prediction.GetPrediction(target, .25f);
+                var rPred = Prediction.GetPrediction(target, .25f);
 
-                if (R_Pred.Hitchance >= HitChance.High && MyHero.Distance(R_Pred.UnitPosition) < R.Range)
+                if (rPred.Hitchance >= HitChance.High && MyHero.Distance(rPred.UnitPosition) < R.Range)
                     R.Cast(UsePackets());
             }
         }
@@ -255,22 +274,15 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         private void MEC_R()
         {
-            int R_Hit = 0;
-            int Mec_R_Min = Menu.Item("Misc_MEC_R").GetValue<Slider>().Value;
+	        var mecRMin = Menu.Item("Misc_MEC_R").GetValue<Slider>().Value;
 
-            foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range) && !x.IsDead && x.IsVisible && x.IsEnemy))
-            {
-                var Pred = Prediction.GetPrediction(target, .25f);
+	        var rHit = ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range) && !x.IsDead && x.IsVisible && x.IsEnemy).Select(target => Prediction.GetPrediction(target, .25f)).Count(pred => MyHero.Distance(pred.UnitPosition) < R.Range);
 
-                if (Pred.Hitchance >= HitChance.High && MyHero.Distance(Pred.UnitPosition) < R.Range)
-                    R_Hit++;
-            }
-
-            if (R_Hit > Mec_R_Min)
+	        if (rHit >= mecRMin)
                 R.Cast(UsePackets());
         }
 
-        private bool Q_Check(Obj_AI_Hero target)
+        private bool Q_Check(Obj_AI_Base target)
         {
             if (target.HasBuffOfType(BuffType.SpellImmunity))
                 return false;
@@ -279,11 +291,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 if (Menu.Item("Dont_Q" + target.BaseSkinName).GetValue<bool>())
                     return false;
 
-            var Q_Min_Range = Menu.Item("Q_Min_Range").GetValue<Slider>().Value;
-            if (MyHero.Distance(target) < Q_Min_Range)
-                return false;
-
-            return true;
+            var qMinRange = Menu.Item("Q_Min_Range").GetValue<Slider>().Value;
+            return !(MyHero.Distance(target) < qMinRange);
         }
     }
 }

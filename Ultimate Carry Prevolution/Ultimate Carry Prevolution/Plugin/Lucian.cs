@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Security.Permissions;
-using System.Text;
-using System.Threading.Tasks;
 using LeagueSharp;
 using LeagueSharp.Common;
 using xSLx_Orbwalker;
@@ -28,7 +24,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			Q.SetTargetted(500, float.MaxValue);
 
 			W = new Spell(SpellSlot.W, 1000);
-			W.SetSkillshot(300, 80, 1600, true, SkillshotType.SkillshotCircle);
+			W.SetSkillshot(300, 80, 1600, true, SkillshotType.SkillshotLine);
 
 			E = new Spell(SpellSlot.E, 475);
 			E.SetSkillshot(250, 1, float.MaxValue, false, SkillshotType.SkillshotLine);
@@ -61,15 +57,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				var laneClearMenu = new Menu("LaneClear", "LaneClear");
 				{
 					AddSpelltoMenu(laneClearMenu, "Q", true);
+					AddSpelltoMenu(laneClearMenu, "W", true);
 					AddSpelltoMenu(laneClearMenu, "E", true);
 					AddManaManagertoMenu(laneClearMenu, 20);
 					champMenu.AddSubMenu(laneClearMenu);
 				}
 
-				var miscMenu = new Menu("Misc", "Misc");
-				{
-					champMenu.AddSubMenu(miscMenu);
-				}
 				var drawMenu = new Menu("Drawing", "Drawing");
 				{
 					drawMenu.AddItem(new MenuItem("Draw_Disabled", "Disable All").SetValue(false));
@@ -155,10 +148,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					_passivTimer = Environment.TickCount;
 					return;
 				}
-				if(spell.SData.Name.Contains( "Attack"))
-				{
-					_passiveUp = false;
-				}
+				//if(spell.SData.Name.Contains( "Attack"))
+				//{
+				//	_passiveUp = false;
+				//}
 			}
 		}
 
@@ -192,6 +185,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		}
 
+		public override void OnAfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+		{
+			if (unit.IsMe && _passiveUp)
+				_passiveUp = false;
+		}
+
 		public override void OnHarass()
 		{
 			if(IsSpellActive("Q") && ManaManagerAllowCast())
@@ -205,8 +204,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 			if(IsSpellActive("Q") && ManaManagerAllowCast())
 				Cast_Q(false);
-			if (IsSpellActive("W") && ManaManagerAllowCast() && !_passiveUp && Environment.TickCount - _passivTimer > 250)
-				Cast_BasicSkillshot_AOE_Farm(W,220);
+			if(IsSpellActive("W") && ManaManagerAllowCast() && !_passiveUp && Environment.TickCount - _passivTimer > 250)
+				Cast_BasicSkillshot_AOE_Farm(W, 220);
 			if(IsSpellActive("E"))
 				Cast_E(false);
 
@@ -251,7 +250,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			if(!W.IsReady() || _passiveUp || Environment.TickCount - _passivTimer < 250)
 				return;
 			var target = SimpleTs.GetTarget(W.Range + 150, SimpleTs.DamageType.Physical);
-			if(target.IsValidTarget(W.Range + 150) && W.GetPrediction(target).Hitchance >= HitChance.High)
+			if(target.IsValidTarget(W.Range + 150) && W.GetPrediction(target).Hitchance >= HitChance.Medium)
 			{
 				W.UpdateSourcePosition();
 				_passivTimer = Environment.TickCount;

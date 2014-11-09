@@ -111,8 +111,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private float GetComboDamage(Obj_AI_Base target)
 		{
-			double comboDamage = (float)ObjectManager.Player.GetComboDamage(target, GetSpellCombo());
-			return (float)(comboDamage + ObjectManager.Player.GetAutoAttackDamage(target));
+			double comboDamage = (float)MyHero.GetComboDamage(target, GetSpellCombo());
+			return (float)(comboDamage + MyHero.GetAutoAttackDamage(target));
 		}
 
 		public override void OnGapClose(ActiveGapcloser gapcloser)
