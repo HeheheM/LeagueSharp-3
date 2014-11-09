@@ -317,7 +317,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				var minionLastHit =
 					allMinions.Where(
 						x =>
-							HealthPrediction.LaneClearHealthPrediction(x, (int) Q.Delay*1000) < MyHero.GetSpellDamage(x, SpellSlot.Q)*0.8)
+							HealthPrediction.LaneClearHealthPrediction(x, (int) Q.Delay) < MyHero.GetSpellDamage(x, SpellSlot.Q)*0.8)
 						.OrderBy(x => x.Health);
 
 				if (!minionLastHit.Any())
@@ -332,7 +332,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					return;
 				var allMinions =
 					MinionManager.GetMinions(MyHero.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly).ToList();
-				var minionLastHit = allMinions.Where(x => HealthPrediction.LaneClearHealthPrediction(x, (int)Q.Delay * 1000) < MyHero.GetSpellDamage(x, SpellSlot.Q) * 0.8).OrderBy(x => x.Health);
+				var minionLastHit = allMinions.Where(x => HealthPrediction.LaneClearHealthPrediction(x, (int)Q.Delay ) < MyHero.GetSpellDamage(x, SpellSlot.Q) * 0.8).OrderBy(x => x.Health);
 
 
 				if(!minionLastHit.Any())
@@ -348,7 +348,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				var minionLastHit =
 					allMinions.Where(
 						x =>
-							HealthPrediction.LaneClearHealthPrediction(x, (int)Q.Delay * 1000) < MyHero.GetSpellDamage(x, SpellSlot.Q) * 0.8)
+							HealthPrediction.LaneClearHealthPrediction(x, (int)Q.Delay) < MyHero.GetSpellDamage(x, SpellSlot.Q) * 0.8)
 						.OrderBy(x => x.Health);
 
 				if(!minionLastHit.Any())
