@@ -253,13 +253,14 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         private void Q_Check()
         {
-            var target = xSLxOrbwalker.GetPossibleTarget();
+            var Q_Range = 525 + 25*Q.Level;
+            var target = SimpleTs.GetTarget(Q_Range, SimpleTs.DamageType.Physical);
 
-            if (!IsFishBoneActive() && MyHero.Distance(target) < 565)
-                Q.Cast(UsePackets());
+            if (!IsFishBoneActive() && MyHero.Distance(target) < 540)
+                Q.Cast();
 
-            if (IsFishBoneActive() && MyHero.Distance(target) > 565)
-                Q.Cast(UsePackets());
+            if (IsFishBoneActive() && MyHero.Distance(target) > 540)
+                Q.Cast();
         }
 
         private void Cast_R()
