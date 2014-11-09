@@ -139,7 +139,6 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			}
 
 			xSLxOrbwalker.ForcedTarget = null;
-			SelectedTarget = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Physical);
         }
 
         public override void OnCombo()
