@@ -338,7 +338,6 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				if(!minionLastHit.Any())
 					return;
 				var unit = minionLastHit.First();
-				Game.PrintChat(GetPassiveStacks().ToString());
 				Q.CastOnUnit(unit, UsePackets());
 			}
 

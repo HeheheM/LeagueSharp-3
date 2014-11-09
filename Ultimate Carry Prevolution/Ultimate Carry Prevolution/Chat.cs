@@ -9,7 +9,6 @@ namespace Ultimate_Carry_Prevolution
 	{
 		public static void WellCome()
 		{
-			Clipboard.SetText(ObjectManager.Player.ChampionName);
 			Game.PrintChat(
 				"<font color ='{0}'>Ultimate</font> <font color ='{1}'>Carry</font> <font color ='{1}'>Prevolution</font>",
 				HtmlColor.Cyan, HtmlColor.Cyan);
