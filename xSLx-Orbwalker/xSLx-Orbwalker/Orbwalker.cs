@@ -79,7 +79,7 @@ namespace xSLx_Orbwalker
 			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_ExtraWindUp", "Extra Winduptime").SetValue(new Slider(80, 200, 0)));
 			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_AutoWindUp", "Autoset Windup").SetValue(false));
 			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_Priority_Unit", "Priority Unit").SetValue(new StringList(new[] { "Minion", "Hero" })));
-			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_Humanizer", "Humanizer Delay").SetValue(new Slider(50, 100, 0)));
+			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_Humanizer", "Humanizer Delay").SetValue(new Slider(80, 200, 50)));
 			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_AllMovementDisabled", "Disable All Movement").SetValue(false));
 			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_AllAttackDisabled", "Disable All Attacks").SetValue(false));
 
@@ -177,7 +177,7 @@ namespace xSLx_Orbwalker
 		{
 
 			CheckAutoWindUp();
-			if(CurrentMode == Mode.None || MyHero.IsChannelingImportantSpell() || MenuGUI.IsChatOpen)
+			if(CurrentMode == Mode.None || (MyHero.IsChannelingImportantSpell() && MyHero.ChampionName != "Corki") || MenuGUI.IsChatOpen)
 				return;
 			if(CustomOrbwalkMode)
 				return;
@@ -449,6 +449,7 @@ namespace xSLx_Orbwalker
 
 			if(CurrentMode == Mode.Harass || CurrentMode == Mode.LaneClear || CurrentMode == Mode.LaneFreeze)
 			{
+
 				foreach(
 					var turret in
 						ObjectManager.Get<Obj_AI_Turret>().Where(turret => turret.IsValidTarget(GetAutoAttackRange(MyHero, turret))))
