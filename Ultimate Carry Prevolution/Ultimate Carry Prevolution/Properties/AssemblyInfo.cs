@@ -6,11 +6,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Ultimate Carry Prevolution")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyDescription("Best Assembly Ever for LeagueSharp")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("xSLx")]
 [assembly: AssemblyProduct("Ultimate Carry Prevolution")]
-[assembly: AssemblyCopyright("Copyright ©  2014")]
+[assembly: AssemblyCopyright("Copyright © xSLx 2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

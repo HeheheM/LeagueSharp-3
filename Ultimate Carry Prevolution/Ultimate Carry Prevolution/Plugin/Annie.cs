@@ -297,6 +297,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		{
 			if (!Q.IsReady())
 				return;
+			
 			if (xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Combo || xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Harass)
 			{
 				if (!Q.IsReady() || (!ManaManagerAllowCast() &&xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Combo) )
@@ -359,25 +360,27 @@ namespace Ultimate_Carry_Prevolution.Plugin
 	
 
 	private void Cast_W()
+	{
+		if (!W.IsReady())
+			return;
+		if(xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Combo || xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Harass)
 		{
-			if(xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Combo || xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Harass)
-			{
-				if(!W.IsReady())
-					return;
-				var target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-				if(target != null)
-					W.Cast(target, UsePackets());
-			}
-			else
-			{
-				var minions = MinionManager.GetMinions(MyHero.ServerPosition, W.Range, MinionTypes.All, MinionTeam.NotAlly).ToList();
-				if(minions.Count <= 0)
-					return;
-				var farm = W.GetLineFarmLocation(minions, W.Width );
-				if(farm.MinionsHit >= 3 || minions.Any(x => x.Team == GameObjectTeam.Neutral))
-					W.Cast(farm.Position, UsePackets());
-			}
+			if(!W.IsReady())
+				return;
+			var target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
+			if(target != null)
+				W.Cast(target, UsePackets());
 		}
+		else
+		{
+			var minions = MinionManager.GetMinions(MyHero.ServerPosition, W.Range, MinionTypes.All, MinionTeam.NotAlly).ToList();
+			if(minions.Count <= 0)
+				return;
+			var farm = W.GetLineFarmLocation(minions, W.Width);
+			if(farm.MinionsHit >= 3 || minions.Any(x => x.Team == GameObjectTeam.Neutral))
+				W.Cast(farm.Position, UsePackets());
+		}
+	}
 
 		private void Cast_E()
 		{
