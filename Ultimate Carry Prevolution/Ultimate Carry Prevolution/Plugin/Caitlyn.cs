@@ -203,13 +203,16 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 Cast_Inverted_E(Game.CursorPos);
         }
 
-        public override void OnGapClose(ActiveGapcloser gapcloser)
-        {
-            if (!Menu.Item("E_Gap_Closer").GetValue<bool>()) return;
+		public override void OnGapClose(ActiveGapcloser gapcloser)
+		{
+			if (!Menu.Item("E_Gap_Closer").GetValue<bool>()) return;
 
-            if (E.IsReady() && gapcloser.Sender.IsValidTarget(E.Range))
-                E.Cast(gapcloser.Sender, UsePackets());
-        }
+		    if (MyHero.Distance(gapcloser.End) < MyHero.Distance(gapcloser.Start))
+		    {
+		        if (E.IsReady() && gapcloser.Sender.IsValidTarget(E.Range))
+		            E.Cast(gapcloser.Sender, UsePackets());
+		    }
+		}
 
         private void Cast_Inverted_E(Vector3 position)
         {

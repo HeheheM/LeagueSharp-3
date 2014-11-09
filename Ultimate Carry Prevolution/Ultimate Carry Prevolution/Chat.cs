@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Drawing;
 using LeagueSharp;
+using System.Windows.Forms;
 
 namespace Ultimate_Carry_Prevolution
 {
@@ -7,11 +9,11 @@ namespace Ultimate_Carry_Prevolution
 	{
 		public static void WellCome()
 		{
+			Clipboard.SetText(ObjectManager.Player.ChampionName);
 			Game.PrintChat(
 				"<font color ='{0}'>Ultimate</font> <font color ='{1}'>Carry</font> <font color ='{1}'>Prevolution</font>",
 				HtmlColor.Cyan, HtmlColor.Cyan);
 			Game.PrintChat("<font color ='{0}'>By xSalice & Lexxes </font>", HtmlColor.Gold);
-
 			Game.PrintChat(
 				"<font color ='{0}'>Version </font> <font color ='{1}'>" + Loader.VersionNumber +
 				"</font> <font color ='{0}'>Loading</font>",
@@ -23,22 +25,23 @@ namespace Ultimate_Carry_Prevolution
 			else
 				Game.PrintChat(
 					"<font color ='{0}'>" + ObjectManager.Player.ChampionName +
-					"</font> <font color ='{1}'>Currently not Fully Supported ( Utilitys still Available )</font>", HtmlColor.Gold,
+					"</font> <font color ='{1}'>Currently not Fully Supported / bugged / or just sucks</font>", HtmlColor.Gold,
 					HtmlColor.Cyan);
 		}
 
 		private static bool IsChampionSupported()
 		{
-			try
-			{
+			try 
+			{//sync, sync where?
 				// ReSharper disable once AssignNullToNotNullAttribute
-				var handle = Activator.CreateInstance(null, "Ultimate_Carry_Prevolution.Plugin." + ObjectManager.Player.ChampionName);
+				var handle = Activator.CreateInstance(null , "Ultimate_Carry_Prevolution.Plugin." + ObjectManager.Player.ChampionName);
 				var champion = (Champion) handle.Unwrap();
 				return true;
 			}
 				// ReSharper disable once EmptyGeneralCatchClause
-			catch (Exception)
+			catch (Exception ex)
 			{
+				Game.PrintChat(ex.Message);
 				return false;
 			}
 		}
