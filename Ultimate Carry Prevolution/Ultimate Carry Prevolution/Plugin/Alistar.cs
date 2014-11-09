@@ -25,7 +25,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			Q = new Spell(SpellSlot.Q, 182);
 
 			W = new Spell(SpellSlot.W, 650);
-			W.SetTargetted(0.5f, float.MaxValue);
+			W.SetTargetted(500, float.MaxValue);
 
 			E = new Spell(SpellSlot.E, 287);
 

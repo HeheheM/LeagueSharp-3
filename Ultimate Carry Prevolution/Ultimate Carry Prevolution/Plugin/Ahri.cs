@@ -18,13 +18,13 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		private void SetSpells()
 		{
 			Q = new Spell(SpellSlot.Q, 990);
-			Q.SetSkillshot((float)0.215, 100, 1600, false, SkillshotType.SkillshotLine);
+			Q.SetSkillshot(215, 100, 1600, false, SkillshotType.SkillshotLine);
 
 			W = new Spell(SpellSlot.W, 700);
-			W.SetSkillshot(.71f,700, float.MaxValue, false, SkillshotType.SkillshotLine);
+			W.SetSkillshot(710,700, float.MaxValue, false, SkillshotType.SkillshotLine);
 			
 			E = new Spell(SpellSlot.E, 990);
-			E.SetSkillshot((float)0.23, 60, 1500, true, SkillshotType.SkillshotLine);
+			E.SetSkillshot(230, 60, 1500, true, SkillshotType.SkillshotLine);
 
 			R = new Spell(SpellSlot.R, 900);
 		}

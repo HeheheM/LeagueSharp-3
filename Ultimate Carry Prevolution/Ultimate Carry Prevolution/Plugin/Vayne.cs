@@ -20,12 +20,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
         private void SetSpells()
         {
             Q = new Spell(SpellSlot.Q);
-            Q.SetSkillshot(0.3f, 250f, 1250f, false, SkillshotType.SkillshotCircle);
+            Q.SetSkillshot(300, 250, 1250, false, SkillshotType.SkillshotCircle);
             
             W = new Spell(SpellSlot.W);
 
-            E = new Spell(SpellSlot.E, 550f);
-            E.SetTargetted(0.25f, 1600f);
+            E = new Spell(SpellSlot.E, 550);
+            E.SetTargetted(250, 1600);
 
             R = new Spell(SpellSlot.R);
         }

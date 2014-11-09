@@ -21,16 +21,16 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		private void SetSpells()
 		{
 			Q = new Spell(SpellSlot.Q, 1080);
-			Q.SetSkillshot((float)0.25, 90, 2000, true, SkillshotType.SkillshotLine);
+			Q.SetSkillshot(250, 90, 2000, true, SkillshotType.SkillshotLine);
 
 			W = new Spell(SpellSlot.W, 300);
-			W.SetSkillshot((float)0.15, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
+			W.SetSkillshot(150, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
 			E = new Spell(SpellSlot.E, 350);
-			E.SetSkillshot((float)0.225, 350, float.MaxValue, false, SkillshotType.SkillshotCircle);
+			E.SetSkillshot(225, 350, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
 			R = new Spell(SpellSlot.R, 550);
-			R.SetSkillshot((float)0.30, 550, float.MaxValue, false, SkillshotType.SkillshotCircle); 
+			R.SetSkillshot(300, 550, float.MaxValue, false, SkillshotType.SkillshotCircle); 
 		}
 
 		private void LoadMenu()
