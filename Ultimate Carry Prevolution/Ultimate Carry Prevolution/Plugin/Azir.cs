@@ -378,7 +378,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     {
                         if (target != null && MyHero.Distance(target) < 800)
                         {
-                            var qPred = GetP(slave.ServerPosition, QExtend, target, true);
+                            Q.UpdateSourcePosition(slave.ServerPosition, slave.ServerPosition);
+                            var qPred = Q.GetPrediction(target);
 
                             if (Q.IsReady() && MyHero.Distance(target) < 800 && qPred.Hitchance >= Get_Q_Hitchance())
                             {
@@ -398,7 +399,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
             {
                 Vector3 wVec = MyHero.ServerPosition + Vector3.Normalize(target.ServerPosition - MyHero.ServerPosition) * 450;
 
-                var qPred = GetP(wVec, QExtend, target, true);
+                Q.UpdateSourcePosition(wVec, wVec);
+                var qPred = Q.GetPrediction(target);
 
                 if ((Q.IsReady() || qSpell.State == SpellState.Surpressed) && (E.IsReady() || eSpell.State == SpellState.Surpressed) && MyHero.Distance(target) < 800 && qPred.Hitchance >= HitChance.High)
                 {
@@ -429,7 +431,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     {
                         if (target != null && MyHero.Distance(target) < 800)
                         {
-                            var qPred = GetP(slave.ServerPosition, QExtend, target, true);
+                            Q.UpdateSourcePosition(slave.ServerPosition, slave.ServerPosition);
+                            var qPred = Q.GetPrediction(target);
                             var vec = target.ServerPosition - MyHero.ServerPosition;
                             var CastBehind = qPred.CastPosition + Vector3.Normalize(vec) * 75;
                             rVec = qPred.CastPosition - Vector3.Normalize(vec) * 300;
@@ -456,7 +459,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
             {
                 Vector3 wVec = MyHero.ServerPosition + Vector3.Normalize(target.ServerPosition - MyHero.ServerPosition) * 450;
 
-                var qPred = GetP(wVec, QExtend, target, true);
+                Q.UpdateSourcePosition(wVec, wVec);
+                var qPred = Q.GetPrediction(target);
 
                 if ((Q.IsReady() || qSpell.State == SpellState.Surpressed) && (E.IsReady() || eSpell.State == SpellState.Surpressed)
                     && R.IsReady() && MyHero.Distance(target) < 800 && qPred.Hitchance >= HitChance.High)
@@ -487,7 +491,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 {
                     Vector3 wVec = MyHero.ServerPosition + Vector3.Normalize(target.ServerPosition - MyHero.ServerPosition) * 450;
 
-                    var qPred = GetP(wVec, QExtend, target, true);
+                    Q.UpdateSourcePosition(wVec, wVec);
+                    var qPred = Q.GetPrediction(target);
 
                     if (qPred.Hitchance >= HitChance.High)
                     {
@@ -529,7 +534,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     //Game.PrintChat("W Cast2");
                     if (W.IsReady() && (Q.IsReady() || qSpell.State == SpellState.Surpressed))
                     {
-                        var qPred = GetP(wVec, QExtend, target, true);
+                        Q.UpdateSourcePosition(wVec, wVec);
+                        var qPred = Q.GetPrediction(target);
 
                         if (qPred.Hitchance >= HitChance.High)
                         {
@@ -552,7 +558,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 if (target != null && MyHero.Distance(target) < QExtend.Range && Should_Q(target, source, slave))
                 {
 
-                    var qPred = GetP(slave.ServerPosition, QExtend, target, true);
+                    Q.UpdateSourcePosition(slave.ServerPosition, slave.ServerPosition);
+                    var qPred = Q.GetPrediction(target);
 
                     if (Q.IsReady() && MyHero.Distance(target) < 800 && qPred.Hitchance >= Get_Q_Hitchance())
                     {
@@ -602,7 +609,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
             {
                 if (target != null && MyHero.Distance(slave) < E.Range)
                 {
-                    var ePred = GetP(slave.ServerPosition, E, target, true);
+                    Q.UpdateSourcePosition(slave.ServerPosition, slave.ServerPosition);
+                    var ePred = E.GetPrediction(target);
                     Object[] obj = VectorPointProjectionOnLineSegment(MyHero.ServerPosition.To2D(), slave.ServerPosition.To2D(), ePred.UnitPosition.To2D());
                     var isOnseg = (bool)obj[2];
                     var PointLine = (Vector2)obj[1];
@@ -816,24 +824,6 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 pointSegment = new Vector2(ax + rS * (bx - ax), ay + rS * (by - ay));
             }
             return new object[3] { pointSegment, pointLine, isOnSegment };
-        }
-
-        private PredictionOutput GetP(Vector3 pos, Spell spell, Obj_AI_Base target, bool aoe)
-        {
-
-            return Prediction.GetPrediction(new PredictionInput
-            {
-                Unit = target,
-                Delay = spell.Delay,
-                Radius = spell.Width,
-                Speed = spell.Speed,
-                From = pos,
-                Range = spell.Range,
-                Collision = spell.Collision,
-                Type = spell.Type,
-                RangeCheckFrom = pos,
-                Aoe = aoe,
-            });
         }
     }
 }
