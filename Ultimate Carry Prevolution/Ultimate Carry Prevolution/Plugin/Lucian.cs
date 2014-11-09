@@ -13,7 +13,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 {
 	internal class Lucian : Champion
 	{
-		private int QMaxRange = 1100;
+		private const int QMaxRange = 1100;
 		private bool PassiveUp;
 		private int PassivTimer;
 		public Lucian()
@@ -188,6 +188,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				Cast_Q(false);
 			if (IsSpellActive("W") && ManaManagerAllowCast() && !PassiveUp && Environment.TickCount - PassivTimer > 250)
 				Cast_BasicSkillshot_AOE_Farm(W,220);
+			if(IsSpellActive("E"))
+				Cast_E(false);
 
 		}
 
@@ -240,13 +242,25 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		}
 		private void Cast_E(bool mode)
 		{
-			if(!E.IsReady() || PassiveUp || Environment.TickCount - PassivTimer < 250)
-				return;
-			var target = SimpleTs.GetTarget(1100, SimpleTs.DamageType.Physical);
-			if (target == null)
-				return;
-			PassivTimer = Environment.TickCount;
-			E.Cast(Game.CursorPos, UsePackets());
+			if (mode)
+			{
+				if(!E.IsReady() || PassiveUp || Environment.TickCount - PassivTimer < 250)
+					return;
+				var target = SimpleTs.GetTarget(1100, SimpleTs.DamageType.Physical);
+				if (target == null)
+					return;
+				PassivTimer = Environment.TickCount;
+				E.Cast(Game.CursorPos, UsePackets());
+			}
+			else
+			{
+				var allMinions = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, 1100, MinionTypes.All,
+						MinionTeam.NotAlly);
+				if(!allMinions.Where(minion => minion != null).Any(minion => minion.IsValidTarget(1100) && E.IsReady()))
+					return;
+				PassivTimer = Environment.TickCount;
+				E.Cast(Game.CursorPos, UsePackets());
+			}
 
 		}
 

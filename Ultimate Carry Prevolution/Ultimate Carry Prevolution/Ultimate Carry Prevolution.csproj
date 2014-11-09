@@ -86,6 +86,7 @@
     <Compile Include="Plugin\Annie.cs" />
     <Compile Include="Plugin\Ashe.cs" />
     <Compile Include="Plugin\Azir.cs" />
+    <Compile Include="Plugin\Blitzcrank.cs" />
     <Compile Include="Plugin\Caitlyn.cs" />
     <Compile Include="Plugin\Corki.cs" />
     <Compile Include="Plugin\Lucian.cs" />

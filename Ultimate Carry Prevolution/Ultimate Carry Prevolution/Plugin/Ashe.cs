@@ -220,6 +220,13 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		{
 			if (!R.IsReady())
 				return;
+			if (
+				AllHerosEnemy.Where(hero => hero.IsValidTarget(R.Range))
+					.Select(enemy => R.CastIfWillHit(enemy, Menu.Item("Combo_useR_enemyCount").GetValue<Slider>().Value, UsePackets()))
+					.Any(casted => casted))
+				return;
+
+
 			var targetMode1 = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
 			var targetMode2 = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
 			switch (mode)
