@@ -11,6 +11,7 @@ namespace Ultimate_Carry_Prevolution
 				"<font color ='{0}'>Ultimate</font> <font color ='{1}'>Carry</font> <font color ='{1}'>Prevolution</font>",
 				HtmlColor.Cyan, HtmlColor.Cyan);
 			Game.PrintChat("<font color ='{0}'>By xSalice & Lexxes </font>", HtmlColor.Gold);
+
 			Game.PrintChat(
 				"<font color ='{0}'>Version </font> <font color ='{1}'>" + Loader.VersionNumber +
 				"</font> <font color ='{0}'>Loading</font>",
