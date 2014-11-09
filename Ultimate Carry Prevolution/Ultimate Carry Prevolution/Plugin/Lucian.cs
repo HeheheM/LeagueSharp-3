@@ -14,8 +14,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 	internal class Lucian : Champion
 	{
 		private const int QMaxRange = 1100;
-		private bool PassiveUp;
-		private int PassivTimer;
+		private bool _passiveUp;
+		private int _passivTimer;
 		public Lucian()
 		{
 			SetSpells();
@@ -46,17 +46,22 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					AddSpelltoMenu(comboMenu, "Q", true);
 					AddSpelltoMenu(comboMenu, "W", true);
 					AddSpelltoMenu(comboMenu, "E", true);
+					comboMenu.AddItem(new MenuItem("Combo_useR_Filler", "Use R if no Spells up")).SetValue(true);
+					comboMenu.AddItem(new MenuItem("Combo_useR_Kill", "Use R if out of Range could kill")).SetValue(true);
+					
 					champMenu.AddSubMenu(comboMenu);
 				}
 				var harassMenu = new Menu("Harass", "Harass");
 				{
 					AddSpelltoMenu(harassMenu, "Q", true);
+					AddSpelltoMenu(harassMenu, "W", true);
 					AddManaManagertoMenu(harassMenu, 30);
 					champMenu.AddSubMenu(harassMenu);
 				}
 				var laneClearMenu = new Menu("LaneClear", "LaneClear");
 				{
-
+					AddSpelltoMenu(laneClearMenu, "Q", true);
+					AddSpelltoMenu(laneClearMenu, "E", true);
 					AddManaManagertoMenu(laneClearMenu, 20);
 					champMenu.AddSubMenu(laneClearMenu);
 				}
@@ -146,31 +151,45 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			{
 				if(spell.SData.Name == "LucianQ" || spell.SData.Name == "LucianW" || spell.SData.Name == "LucianE" || spell.SData.Name == "LucianR")
 				{
-					PassiveUp = true;
-					PassivTimer = Environment.TickCount;
+					_passiveUp = true;
+					_passivTimer = Environment.TickCount;
 					return;
 				}
 				if(spell.SData.Name.Contains( "Attack"))
 				{
-					PassiveUp = false;
+					_passiveUp = false;
 				}
 			}
 		}
 
 		public override void OnPassive()
 		{
-			if (Environment.TickCount - PassivTimer > 7000 && PassiveUp)
-				PassiveUp = false;
+			if (Environment.TickCount - _passivTimer > 7000 && _passiveUp)
+				_passiveUp = false;
+			if(MyHero.HasBuff( "LucianR"))
+			{
+				xSLxOrbwalker.SetAttack(false);
+				_passivTimer = Environment.TickCount;
+			}
+			else
+			{
+				xSLxOrbwalker.SetAttack(true);
+			}
 		}
 
 		public override void OnCombo()
 		{
 			if (IsSpellActive("Q"))
 				Cast_Q(true);
-			if(IsSpellActive("W"))
+			if (IsSpellActive("W"))
 				Cast_W(true);
-			if(IsSpellActive("E"))
+			if (IsSpellActive("E"))
 				Cast_E(true);
+			if (Menu.Item("Combo_useR_Filler").GetValue<bool>())
+				Cast_R(1);
+			if (Menu.Item("Combo_useR_Kill").GetValue<bool>())
+				Cast_R(2);
+
 		}
 
 		public override void OnHarass()
@@ -186,7 +205,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 			if(IsSpellActive("Q") && ManaManagerAllowCast())
 				Cast_Q(false);
-			if (IsSpellActive("W") && ManaManagerAllowCast() && !PassiveUp && Environment.TickCount - PassivTimer > 250)
+			if (IsSpellActive("W") && ManaManagerAllowCast() && !_passiveUp && Environment.TickCount - _passivTimer > 250)
 				Cast_BasicSkillshot_AOE_Farm(W,220);
 			if(IsSpellActive("E"))
 				Cast_E(false);
@@ -195,14 +214,14 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private void Cast_Q(bool mode)
 		{
-			if(!Q.IsReady() || PassiveUp || Environment.TickCount -PassivTimer <250 )
+			if(!Q.IsReady() || _passiveUp || Environment.TickCount -_passivTimer <250 )
 				return;
 			if (mode)
 			{
 				var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
 				if(target != null)
 				{
-					PassivTimer = Environment.TickCount;
+					_passivTimer = Environment.TickCount;
 					Q.CastOnUnit(target, UsePackets());
 					return;
 				}
@@ -211,7 +230,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					return;
 				foreach(var obj in ObjectManager.Get<Obj_AI_Base>().Where(obj => obj.IsValidTarget(Q.Range) && (obj.ServerPosition.To2D().Distance(MyHero.ServerPosition.To2D(), Q.GetPrediction(target).UnitPosition.To2D(), true) < 50)))
 				{
-					PassivTimer = Environment.TickCount;
+					_passivTimer = Environment.TickCount;
 					Q.CastOnUnit(obj, UsePackets());
 					return;
 				}
@@ -222,20 +241,20 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				var minion = allMinions.FirstOrDefault(minionn => minionn.Distance(MyHero) <= Q.Range && HealthPrediction.LaneClearHealthPrediction(minionn, 500) > 0);
 				if(minion == null)
 					return;
-				PassivTimer = Environment.TickCount;
+				_passivTimer = Environment.TickCount;
 				Q.CastOnUnit(minion, UsePackets());
 			}
 		}
 
 		private void Cast_W(bool mode)
 		{
-			if(!W.IsReady() || PassiveUp || Environment.TickCount - PassivTimer < 250)
+			if(!W.IsReady() || _passiveUp || Environment.TickCount - _passivTimer < 250)
 				return;
 			var target = SimpleTs.GetTarget(W.Range + 150, SimpleTs.DamageType.Physical);
 			if(target.IsValidTarget(W.Range + 150) && W.GetPrediction(target).Hitchance >= HitChance.High)
 			{
 				W.UpdateSourcePosition();
-				PassivTimer = Environment.TickCount;
+				_passivTimer = Environment.TickCount;
 				W.Cast(target, UsePackets());
 			}
 
@@ -244,12 +263,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		{
 			if (mode)
 			{
-				if(!E.IsReady() || PassiveUp || Environment.TickCount - PassivTimer < 250)
+				if(!E.IsReady() || _passiveUp || Environment.TickCount - _passivTimer < 250)
 					return;
 				var target = SimpleTs.GetTarget(1100, SimpleTs.DamageType.Physical);
 				if (target == null)
 					return;
-				PassivTimer = Environment.TickCount;
+				_passivTimer = Environment.TickCount;
 				E.Cast(Game.CursorPos, UsePackets());
 			}
 			else
@@ -258,12 +277,48 @@ namespace Ultimate_Carry_Prevolution.Plugin
 						MinionTeam.NotAlly);
 				if(!allMinions.Where(minion => minion != null).Any(minion => minion.IsValidTarget(1100) && E.IsReady()))
 					return;
-				PassivTimer = Environment.TickCount;
+				_passivTimer = Environment.TickCount;
 				E.Cast(Game.CursorPos, UsePackets());
 			}
 
 		}
 
+		private void Cast_R(int mode)
+		{
+			if(!R.IsReady() || _passiveUp || Environment.TickCount - _passivTimer < 250)
+				return;
+			switch(mode)
+			{
+				case 1:
+					if(Q.IsReady() || W.IsReady() || E.IsReady())
+						return;
+					var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+					if(target.IsValidTarget(R.Range))
+					{
+						_passivTimer = Environment.TickCount;
+						R.Cast(target, UsePackets());
+					}
+					break;
+				case 2:
+					target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+					if (W.IsReady() && target.IsValidTarget(W.Range))
+						return;
+					if(W.IsReady() && target.IsValidTarget(W.Range))
+						return;
+					if(Q.IsReady() && target.IsValidTarget(Q.Range))
+						return;
+					if(E.IsReady() && target.IsValidTarget(xSLxOrbwalker.GetAutoAttackRange(MyHero,target) + E.Range))
+						return;
+					if (target.IsValidTarget(xSLxOrbwalker.GetAutoAttackRange(MyHero, target) + E.Range))
+						return;
+					if (target.Health < MyHero.GetSpellDamage(target, SpellSlot.R)*0.4)
+					{
+						_passivTimer = Environment.TickCount;
+						R.Cast(target, UsePackets());
+					}
+					break;
+			}
+		}
 	}
 }
 

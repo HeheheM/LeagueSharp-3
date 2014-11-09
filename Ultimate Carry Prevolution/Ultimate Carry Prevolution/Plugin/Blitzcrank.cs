@@ -29,7 +29,6 @@ namespace Ultimate_Carry_Prevolution.Plugin
             E = new Spell(SpellSlot.E, 140);
 
             R = new Spell(SpellSlot.R, 600);
-            R.SetSkillshot(0.25f, 600, float.MaxValue, false, SkillshotType.SkillshotCircle);
         }
 
         private void LoadMenu()
@@ -68,12 +67,6 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     champMenu.AddSubMenu(harassMenu);
                 }
 
-                var fleeMenu = new Menu("Flee", "Flee");
-                {
-                    AddSpelltoMenu(fleeMenu, "W", true);
-                    champMenu.AddSubMenu(fleeMenu);
-                }
-
                 var laneClearMenu = new Menu("LaneClear", "LaneClear");
                 {
                     AddSpelltoMenu(laneClearMenu, "Q", true);
@@ -81,6 +74,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     AddSpelltoMenu(laneClearMenu, "R", true);
                     AddManaManagertoMenu(laneClearMenu, 0);
                     champMenu.AddSubMenu(laneClearMenu);
+                }
+
+                var fleeMenu = new Menu("Flee", "Flee");
+                {
+                    AddSpelltoMenu(fleeMenu, "W", true);
+                    champMenu.AddSubMenu(fleeMenu);
                 }
 
                 var miscMenu = new Menu("Misc", "Misc");
@@ -164,6 +163,13 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         public override void OnPassive()
         {
+            //change Q range
+            var Q_Max_Range = Menu.Item("Q_Max_Range").GetValue<Slider>().Value;
+            Q.Range = Q_Max_Range;
+
+            MEC_R();
+
+            //Auto Q
             var Q_Dashing = Menu.Item("Auto_Q_Dashing").GetValue<bool>();
             var Q_Immobile = Menu.Item("Auto_Q_Immobile").GetValue<bool>();
             var Q_Slow = Menu.Item("Auto_Q_Slow").GetValue<bool>();
@@ -189,8 +195,95 @@ namespace Ultimate_Carry_Prevolution.Plugin
             if (spell.DangerLevel < InterruptableDangerLevel.Medium || unit.IsAlly)
                 return;
 
-            if (Menu.Item("Misc_R_Interrupt").GetValue<bool>() && unit.IsValidTarget(E.Range))
-                E.Cast(unit, UsePackets());
+            if (Menu.Item("Misc_R_Interrupt").GetValue<bool>() && unit.IsValidTarget(R.Range))
+                R.Cast(UsePackets());
+        }
+
+        public override void OnCombo()
+        {
+            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+
+            if (IsSpellActive("W") && W.IsReady() && MyHero.Distance(target) < 500)
+                W.Cast(UsePackets());
+            
+            if (IsSpellActive("Q") && Q_Check(target))
+                Cast_BasicSkillshot_Enemy(Q, SimpleTs.DamageType.Magical);
+
+            if (IsSpellActive("E") && E.IsReady() && MyHero.Distance(target) < 300 && !Menu.Item("Misc_E_Reset").GetValue<bool>())
+                E.Cast();
+
+            if (IsSpellActive("R") && R.IsReady())
+            {
+                var R_Pred = Prediction.GetPrediction(target, .25f);
+
+                if (R_Pred.Hitchance >= HitChance.High && MyHero.Distance(R_Pred.UnitPosition) < R.Range)
+                    R.Cast(UsePackets());
+            }
+        }
+
+        public override void OnHarass()
+        {
+            var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+
+            if (IsSpellActive("W") && W.IsReady() && MyHero.Distance(target) < 500)
+                W.Cast(UsePackets());
+
+            if (IsSpellActive("Q") && Q_Check(target))
+                Cast_BasicSkillshot_Enemy(Q, SimpleTs.DamageType.Magical);
+
+            if (IsSpellActive("E") && E.IsReady() && MyHero.Distance(target) < 300 && !Menu.Item("Misc_E_Reset").GetValue<bool>())
+                E.Cast();
+        }
+
+        public override void OnFlee()
+        {
+            if (W.IsReady() && IsSpellActive("W"))
+                W.Cast(UsePackets());
+        }
+
+        public override void OnAfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+        {
+            if (unit.IsMe && Menu.Item("Misc_E_Reset").GetValue<bool>())
+            {
+                if (IsSpellActive("E") && E.IsReady())
+                {
+                    Orbwalking.ResetAutoAttackTimer();
+                    E.Cast();
+                }
+            }
+        }
+
+        private void MEC_R()
+        {
+            int R_Hit = 0;
+            int Mec_R_Min = Menu.Item("Misc_MEC_R").GetValue<Slider>().Value;
+
+            foreach (var target in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range) && !x.IsDead && x.IsVisible && x.IsEnemy))
+            {
+                var Pred = Prediction.GetPrediction(target, .25f);
+
+                if (Pred.Hitchance >= HitChance.High && MyHero.Distance(Pred.UnitPosition) < R.Range)
+                    R_Hit++;
+            }
+
+            if (R_Hit > Mec_R_Min)
+                R.Cast(UsePackets());
+        }
+
+        private bool Q_Check(Obj_AI_Hero target)
+        {
+            if (target.HasBuffOfType(BuffType.SpellImmunity))
+                return false;
+
+            if(Menu.Item("Dont_Q" + target.BaseSkinName) != null)
+                if (Menu.Item("Dont_Q" + target.BaseSkinName).GetValue<bool>())
+                    return false;
+
+            var Q_Min_Range = Menu.Item("Q_Min_Range").GetValue<Slider>().Value;
+            if (MyHero.Distance(target) < Q_Min_Range)
+                return false;
+
+            return true;
         }
     }
 }
