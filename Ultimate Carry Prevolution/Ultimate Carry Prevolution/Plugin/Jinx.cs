@@ -278,10 +278,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
             var Q_Range = 525 + 25*Q.Level;
             var target = SimpleTs.GetTarget(Q_Range, SimpleTs.DamageType.Physical);
 
-            if (!IsFishBoneActive() && MyHero.Distance(target.ServerPosition) < 525 + target.BoundingRadius)
+            if (!IsFishBoneActive() && MyHero.Distance(target.ServerPosition) < 550)
                 Q.Cast();
 
-            if (IsFishBoneActive() && MyHero.Distance(target.ServerPosition) > 525 + target.BoundingRadius)
+            if (IsFishBoneActive() && MyHero.Distance(target.ServerPosition) > 550)
                 Q.Cast();
         }
 
@@ -389,7 +389,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private bool IsFishBoneActive()
 		{
-			return MyHero.AttackRange < 525;
+			return MyHero.AttackRange < 550;
 		}
     }
 
