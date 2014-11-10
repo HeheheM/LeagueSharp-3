@@ -22,7 +22,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
             Q = new Spell(SpellSlot.Q);
 
             W = new Spell(SpellSlot.W, 1500);
-            W.SetSkillshot(0.6f, 60f, 3400f, true, SkillshotType.SkillshotLine);
+            W.SetSkillshot(0.6f, 60f, float.MaxValue, true, SkillshotType.SkillshotLine);
 
             E = new Spell(SpellSlot.E, 900f);
             E.SetSkillshot(0.7f, 120f, 1750f, false, SkillshotType.SkillshotCircle);
@@ -209,11 +209,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		public override void OnCombo()
 		{
             var W_Target = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Physical);
-            var W_Pred = Prediction.GetPrediction(W_Target, .6f);
-            if (IsSpellActive("W") && W.IsReady() && MyHero.Distance(W_Target) < 1500)
-            {
+		    var W_Pred = W.GetPrediction(W_Target);
+            if (IsSpellActive("W") && W.IsReady() && W_Pred.CollisionObjects.Count == 0)
                 W.Cast(W_Pred.CastPosition, UsePackets());
-            }
+            
 
 			if (IsSpellActive("Q"))
 				Q_Check();
@@ -228,12 +227,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		{
 			if (ManaManagerAllowCast())
 			{
-                var W_Target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
-                var W_Pred = Prediction.GetPrediction(W_Target, .6f);
-                if (IsSpellActive("W") && W.IsReady() && MyHero.Distance(W_Target) < 1500)
-                {
+                var W_Target = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Physical);
+                var W_Pred = W.GetPrediction(W_Target);
+                if (IsSpellActive("W") && W.IsReady() && W_Pred.CollisionObjects.Count == 0)
                     W.Cast(W_Pred.CastPosition, UsePackets());
-                }
 
 				if (IsSpellActive("Q"))
 					Q_Check();
