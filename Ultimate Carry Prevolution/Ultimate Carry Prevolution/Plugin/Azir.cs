@@ -35,6 +35,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
             QExtend.SetSkillshot(0.1f, 100, 1700, false, SkillshotType.SkillshotLine);
 
             W = new Spell(SpellSlot.W, 450);
+            W.SetSkillshot(.25f, 400, float.MaxValue, false, SkillshotType.SkillshotCircle);
 
             E = new Spell(SpellSlot.E, 2000);
             E.SetSkillshot(0.25f, 100, 1200, false, SkillshotType.SkillshotLine);
@@ -286,7 +287,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
             if (!ManaManagerAllowCast())
                 return;
 
-            var allMinionsW = MinionManager.GetMinions(ObjectManager.Player.ServerPosition, W.Range + W.Width, MinionTypes.All);
+            var allMinionsQ = MinionManager.GetMinions(MyHero.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
+            var allMinionsW = MinionManager.GetMinions(MyHero.ServerPosition, W.Range, MinionTypes.All, MinionTeam.NotAlly);
 
             if (soilderCount() > 0)
             {
@@ -294,13 +296,16 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 foreach (var slave in slaves)
                 {
                     Q.UpdateSourcePosition(slave.ServerPosition, slave.ServerPosition);
-                    Cast_BasicSkillshot_AOE_Farm(Q);
+                    var qpred = Q.GetCircularFarmLocation(allMinionsQ);
+
+                    if (qpred.MinionsHit > 2 && MyHero.Distance(qpred.Position) < Q.Range)
+                        Q.Cast(qpred.Position, UsePackets());
                 }
             }
             else if (W.IsReady())
             {
                 var wpred = W.GetCircularFarmLocation(allMinionsW);
-                if(wpred.MinionsHit > 0)
+                if(wpred.MinionsHit > 0 && MyHero.Distance(wpred.Position) < W.Range)
                     W.Cast(wpred.Position);
             }
         }
