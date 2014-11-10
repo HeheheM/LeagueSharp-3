@@ -61,6 +61,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     spellMenu.AddSubMenu(new Menu("WSpell", "WSpell"));
                     spellMenu.SubMenu("WSpell").AddItem(new MenuItem("AutoAA_W_Range", "Always Atk Enemy").SetValue(true));
                     spellMenu.SubMenu("WSpell").AddItem(new MenuItem("Use_W_Q_Poke", "Use WQ Poke").SetValue(true));
+                    spellMenu.SubMenu("WSpell").AddItem(new MenuItem("Use_W_Tower", "Auto W Tower if 2+ Stacks").SetValue(true));
                     //E Menu
                     spellMenu.AddSubMenu(new Menu("ESpell", "ESpell"));
                     spellMenu.SubMenu("ESpell").AddItem(new MenuItem("Use_E_As_Gapcloser", "GapClose if out of Q Range").SetValue(false));
@@ -211,6 +212,14 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
             if (Menu.Item("AutoAA_W_Range").GetValue<bool>())
                 Auto_Attack_Enemy();
+
+            if (Menu.Item("Use_W_Tower").GetValue<bool>())
+            {
+                var Tower = ObjectManager.Get<Obj_AI_Turret>().Where(tower => tower.IsEnemy && tower.Health > 0 && tower.Position.Distance(MyHero.ServerPosition) < W.Range);
+
+                if (Tower.FirstOrDefault() != null && MyHero.Spellbook.GetSpell(SpellSlot.W).Ammo > 1)
+                    W.Cast(Tower.FirstOrDefault(), UsePackets());
+            }
         }
 
         public override void OnCombo()
