@@ -128,16 +128,17 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				return;
 			if(Menu.Item("Focus_Target").GetValue<bool>())
 			{
-                if (Hud.SelectedUnit.Type == GameObjectType.obj_AI_Hero)
-                    SelectedTarget = (Obj_AI_Base)Hud.SelectedUnit;
-                else
-                    SelectedTarget = null;
-                
+				var hudtarget = (Obj_AI_Base)Hud.SelectedUnit;
+				if(Hud.SelectedUnit.Type == GameObjectType.obj_AI_Hero && hudtarget.IsValidTarget() && xSLxOrbwalker.InAutoAttackRange( hudtarget ))
+					SelectedTarget = (Obj_AI_Base)Hud.SelectedUnit;
+				else
+					SelectedTarget = null;
+
 				if(SelectedTarget != null && SelectedTarget.IsValidTarget(600) && !SelectedTarget.IsDead)
 				{
 					xSLxOrbwalker.ForcedTarget = SelectedTarget;
 					return;
-				}
+				}			
 			}
 
 			xSLxOrbwalker.ForcedTarget = null;
