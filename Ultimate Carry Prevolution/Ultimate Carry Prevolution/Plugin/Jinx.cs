@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -98,6 +99,13 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 {
                     AddSpelltoMenu(fleeMenu, "E", true, "Use E In Front of Enemy");
                     champMenu.AddSubMenu(fleeMenu);
+                }
+
+                var farmMenu = new Menu("Farm", "Farm");
+                {
+                    AddSpelltoMenu(farmMenu, "Q", true, "Switch back to Mini");
+
+                    champMenu.AddSubMenu(farmMenu);
                 }
 
                 var miscMenu = new Menu("Misc", "Misc");
@@ -202,8 +210,11 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		{
 			if (IsSpellActive("Q"))
 				Q_Check();
-			if (IsSpellActive("W"))
-				Cast_BasicSkillshot_Enemy(W, SimpleTs.DamageType.Physical);
+
+		    var W_Target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
+		    if (IsSpellActive("W") && W.IsReady() && W.GetPrediction(W_Target).Hitchance >= HitChance.High)
+		        W.Cast(W_Target, UsePackets());
+
 			if (IsSpellActive("E"))
 				Cast_E(Menu.Item("Auto_W_Immobile").GetValue<bool>(), Menu.Item("Auto_W_Slow").GetValue<bool>(), Menu.Item("E_Behind_Target").GetValue<bool>());
 			if (IsSpellActive("R"))
@@ -216,8 +227,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			{
 				if (IsSpellActive("Q"))
 					Q_Check();
-				if (IsSpellActive("W"))
-					Cast_BasicSkillshot_Enemy(W, SimpleTs.DamageType.Physical);
+
+                var W_Target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
+                if (IsSpellActive("W") && W.IsReady() && W.GetPrediction(W_Target).Hitchance >= HitChance.High)
+                    W.Cast(W_Target, UsePackets());
 			}
 		}
 
@@ -226,6 +239,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			if (IsSpellActive("E"))
 				Cast_E_Escape();
 		}
+
+        public override void OnLaneClear()
+        {
+            if (!IsFishBoneActive() && Q.IsReady() && IsSpellActive("Q"))
+                Q.Cast();
+        }
 
 		public override void OnGapClose(ActiveGapcloser gapcloser)
 		{

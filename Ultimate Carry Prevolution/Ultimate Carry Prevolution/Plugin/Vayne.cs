@@ -130,7 +130,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			{
 				SelectedTarget = (Obj_AI_Base)Hud.SelectedUnit;
 
-				if(SelectedTarget != null && SelectedTarget.IsValidTarget(600) &&
+				if(SelectedTarget != null && SelectedTarget.IsValidTarget(600) && SelectedTarget.IsEnemy &&
 					SelectedTarget.Type == GameObjectType.obj_AI_Hero)
 				{
 					xSLxOrbwalker.ForcedTarget = SelectedTarget;

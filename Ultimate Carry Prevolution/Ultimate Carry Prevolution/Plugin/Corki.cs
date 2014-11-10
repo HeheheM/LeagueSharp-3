@@ -146,12 +146,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         public override void OnCombo()
         {
+            if (IsSpellActive("R"))
+                Cast_R(1);
             if (IsSpellActive("Q"))
                 Cast_BasicSkillshot_Enemy(Q, SimpleTs.DamageType.Magical);
             if (IsSpellActive("E"))
                 Cast_BasicSkillshot_Enemy(E, SimpleTs.DamageType.Physical);
-            if (IsSpellActive("R"))
-                Cast_R(1);
         }
 
         public override void OnHarass()
