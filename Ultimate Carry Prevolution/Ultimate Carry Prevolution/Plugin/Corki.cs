@@ -26,7 +26,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
             E.SetSkillshot(10, (float) (45*Math.PI/180), 1500, false, SkillshotType.SkillshotCone);
 
             R = new Spell(SpellSlot.R, 1300);
-            R.SetSkillshot(200, 40, 2000, true, SkillshotType.SkillshotLine);
+            R.SetSkillshot(200, 40, 3000, true, SkillshotType.SkillshotLine);
         }
 
         private void LoadMenu()
