@@ -389,7 +389,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private bool IsFishBoneActive()
 		{
-			return MyHero.AttackRange > 525;
+			return MyHero.AttackRange < 525;
 		}
     }
 
