@@ -14,7 +14,7 @@ namespace Ultimate_Carry_Prevolution
 				HtmlColor.Cyan, HtmlColor.Cyan);
 			Game.PrintChat("<font color ='{0}'>By xSalice & Lexxes </font>", HtmlColor.Gold);
 			Game.PrintChat(
-				"<font color ='{0}'>Version </font> <font color ='{1}'>" + Loader.VersionNumber +
+				"<font color ='{0}'>Version </font> <font color ='{1}'>1.0." + Loader.VersionNumber +
 				"</font> <font color ='{0}'>Loading</font>",
 				HtmlColor.Cyan, HtmlColor.Gold);
 			if (IsChampionSupported())
