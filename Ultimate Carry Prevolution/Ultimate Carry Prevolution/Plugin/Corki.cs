@@ -18,15 +18,15 @@ namespace Ultimate_Carry_Prevolution.Plugin
         private void SetSpells()
         {
             Q = new Spell(SpellSlot.Q, 825);
-            Q.SetSkillshot(300, 250, 1250, false, SkillshotType.SkillshotCircle);
+            Q.SetSkillshot(300, 250, 1225, false, SkillshotType.SkillshotCircle);
 
             W = new Spell(SpellSlot.W, 800);
 
             E = new Spell(SpellSlot.E, 600);
             E.SetSkillshot(10, (float) (45*Math.PI/180), 1500, false, SkillshotType.SkillshotCone);
 
-            R = new Spell(SpellSlot.R, 1300);
-            R.SetSkillshot(200, 40, 3000, true, SkillshotType.SkillshotLine);
+            R = new Spell(SpellSlot.R, 1500);
+            R.SetSkillshot(200, 40, 2000, true, SkillshotType.SkillshotLine);
         }
 
         private void LoadMenu()
@@ -182,14 +182,16 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         private void Cast_R(int mode)
         {
-            R.Range = ObjectManager.Player.HasBuff("CorkiMissileBarrageCounterBig") ? 1500 : 1300;
+	        var reducedRange = !MyHero.HasBuff("CorkiMissileBarrageCounterBig") ? -200 : 0;
 
             if (mode == 1 && Menu.Item("ComboR_Limit").GetValue<Slider>().Value <ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
-                Cast_BasicSkillshot_Enemy(R, SimpleTs.DamageType.Physical);
+				Cast_BasicSkillshot_Enemy(R, SimpleTs.DamageType.Physical, reducedRange);
             else if (mode == 2 &&Menu.Item("HarassR_Limit").GetValue<Slider>().Value < ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
-                Cast_BasicSkillshot_Enemy(R, SimpleTs.DamageType.Physical);
-            else if (mode == 3 && Menu.Item("LaneClearR_Limit").GetValue<Slider>().Value < ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
-                Cast_BasicSkillshot_AOE_Farm(R);
+				Cast_BasicSkillshot_Enemy(R, SimpleTs.DamageType.Physical, reducedRange);
+            else if (mode == 3 &&
+                     Menu.Item("LaneClearR_Limit").GetValue<Slider>().Value <
+                     ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
+	            Cast_BasicSkillshot_AOE_Farm(R, reducedRange);
         }
     }
 }

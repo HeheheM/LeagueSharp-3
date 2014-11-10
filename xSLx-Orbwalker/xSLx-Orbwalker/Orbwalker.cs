@@ -134,13 +134,6 @@ namespace xSLx_Orbwalker
 			Obj_AI_Base.OnProcessSpellCast += OnProcessSpell;
 			GameObject.OnCreate += Obj_SpellMissile_OnCreate;
 			Game.OnGameProcessPacket += OnProcessPacket;
-			//Obj_AI_Base.OnPlayAnimation += OnAnimation;
-		}
-
-		private static void OnAnimation(GameObject sender, GameObjectPlayAnimationEventArgs args)
-		{
-			if (sender.IsMe && (args.Animation == "Run" || args.Animation == "Idle") && CanMove() == false)
-				ResetAutoAttackTimer();
 		}
 
 		private static void OnProcessPacket(GamePacketEventArgs args)

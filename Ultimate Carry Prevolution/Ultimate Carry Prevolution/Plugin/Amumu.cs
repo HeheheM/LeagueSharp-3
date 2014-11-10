@@ -210,13 +210,13 @@ namespace Ultimate_Carry_Prevolution.Plugin
 						bestTarget = unit;
 					}
 					if(couldHitTargets >= Menu.Item("Combo_useR_onAmount").GetValue<Slider>().Value)
-						Q.CastIfHitchanceEquals(bestTarget, HitChance.High);
+						Q.Cast(bestTarget, UsePackets());
 				}
 				var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
 				if(target == null)
 					return;
-				if(mode == 1 || (mode == 2 && !xSLxOrbwalker.InAutoAttackRange(target)))
-					Q.CastIfHitchanceEquals(target, HitChance.High);
+				if((mode == 1 || (mode == 2 && !xSLxOrbwalker.InAutoAttackRange(target))) && Q.GetPrediction(target).Hitchance >= HitChance.High)
+					Q.Cast(target, UsePackets());
 			}
 			else
 			{

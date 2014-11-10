@@ -38,7 +38,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     AddSpelltoMenu(comboMenu, "Q", true);
                     AddSpelltoMenu(comboMenu, "W", true);
                     AddSpelltoMenu(comboMenu, "W_StunCombo", true, "W On Stun Enemy");
-                    AddSpelltoMenu(comboMenu, "W_SlowCombo", true, "W On Stun Enemy");
+                    AddSpelltoMenu(comboMenu, "W_SlowCombo", true, "W On Slow Enemy");
                     AddSpelltoMenu(comboMenu, "E", true);
                     comboMenu.AddItem(new MenuItem("R_Nearest_Killable", "R Nearest Killable").SetValue(new KeyBind("R".ToCharArray()[0], KeyBindType.Press)));
                     champMenu.AddSubMenu(comboMenu);

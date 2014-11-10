@@ -5,6 +5,7 @@ using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 using xSLx_Orbwalker;
+using xSLx_Activator;
 
 namespace Ultimate_Carry_Prevolution
 {
@@ -88,8 +89,13 @@ namespace Ultimate_Carry_Prevolution
 			Menu.AddSubMenu(new Menu("Packet Setting", "Packets"));
 			Menu.SubMenu("Packets").AddItem(new MenuItem("usePackets", "Use Packets").SetValue(false));
 
-			//Orbwalker get changed to xSLxOrbwalker Soon
-			var orbwalkerMenu = new Menu("LX Orbwalker", "LX_Orbwalker");
+			//xSLxActivator
+			var activatorMenu = new Menu("xSLx Activator", "xSLx_Activator");
+			xSLxActivator.AddToMenu(activatorMenu);
+			Menu.AddSubMenu(activatorMenu);
+
+			//xSLxOrbwalker (Based on Common)
+			var orbwalkerMenu = new Menu("xSLx Orbwalker", "xSLx_Orbwalker");
 			xSLxOrbwalker.AddToMenu(orbwalkerMenu);
 			Menu.AddSubMenu(orbwalkerMenu);
 		}
