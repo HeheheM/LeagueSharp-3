@@ -21,8 +21,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
         {
             Q = new Spell(SpellSlot.Q);
 
-            W = new Spell(SpellSlot.W, 1500f);
-            W.SetSkillshot(0.6f, 60f, 3300f, true, SkillshotType.SkillshotLine);
+            W = new Spell(SpellSlot.W, 1500);
+            W.SetSkillshot(0.6f, 60f, 3400f, true, SkillshotType.SkillshotLine);
 
             E = new Spell(SpellSlot.E, 900f);
             E.SetSkillshot(0.7f, 120f, 1750f, false, SkillshotType.SkillshotCircle);
@@ -208,14 +208,17 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		public override void OnCombo()
 		{
+            var W_Target = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Physical);
+            var W_Pred = Prediction.GetPrediction(W_Target, .6f);
+            if (IsSpellActive("W") && W.IsReady() && MyHero.Distance(W_Target) < 1500)
+            {
+                W.Cast(W_Pred.CastPosition, UsePackets());
+            }
+
 			if (IsSpellActive("Q"))
 				Q_Check();
 
-		    var W_Target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
-		    if (IsSpellActive("W") && W.IsReady())
-		        W.Cast(W_Target, UsePackets());
-
-			if (IsSpellActive("E"))
+		    if (IsSpellActive("E"))
 				Cast_E(Menu.Item("Auto_W_Immobile").GetValue<bool>(), Menu.Item("Auto_W_Slow").GetValue<bool>(), Menu.Item("E_Behind_Target").GetValue<bool>());
 			if (IsSpellActive("R"))
                 Cast_R();
@@ -225,12 +228,15 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		{
 			if (ManaManagerAllowCast())
 			{
+                var W_Target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
+                var W_Pred = Prediction.GetPrediction(W_Target, .6f);
+                if (IsSpellActive("W") && W.IsReady() && MyHero.Distance(W_Target) < 1500)
+                {
+                    W.Cast(W_Pred.CastPosition, UsePackets());
+                }
+
 				if (IsSpellActive("Q"))
 					Q_Check();
-
-                var W_Target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
-                if (IsSpellActive("W") && W.IsReady() && W.GetPrediction(W_Target).Hitchance >= HitChance.High)
-                    W.Cast(W_Target, UsePackets());
 			}
 		}
 
@@ -275,13 +281,15 @@ namespace Ultimate_Carry_Prevolution.Plugin
             if (!Q.IsReady())
                 return;
 
-            var Q_Range = 525 + 25*Q.Level;
+            var Q_Range = 525 + (50+25*Q.Level);
             var target = SimpleTs.GetTarget(Q_Range, SimpleTs.DamageType.Physical);
 
-            if (!IsFishBoneActive() && MyHero.Distance(target.ServerPosition) < 550)
+            if (!IsFishBoneActive() && MyHero.Distance(target.ServerPosition) < 565)
+            {
                 Q.Cast();
-
-            if (IsFishBoneActive() && MyHero.Distance(target.ServerPosition) > 550)
+                return;
+            }
+            if (IsFishBoneActive() && MyHero.Distance(target.ServerPosition) > 565)
                 Q.Cast();
         }
 
@@ -389,7 +397,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private bool IsFishBoneActive()
 		{
-			return MyHero.AttackRange < 550;
+			return MyHero.AttackRange < 565;
 		}
     }
 
