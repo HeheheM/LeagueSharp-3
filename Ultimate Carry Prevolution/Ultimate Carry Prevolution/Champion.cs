@@ -90,9 +90,9 @@ namespace Ultimate_Carry_Prevolution
 			Menu.SubMenu("Packets").AddItem(new MenuItem("usePackets", "Use Packets").SetValue(false));
 
 			//xSLxActivator
-			var activatorMenu = new Menu("xSLx Activator", "xSLx_Activator");
-			xSLxActivator.AddToMenu(activatorMenu);
-			Menu.AddSubMenu(activatorMenu);
+			//var activatorMenu = new Menu("xSLx Activator", "xSLx_Activator");
+			//xSLxActivator.AddToMenu(activatorMenu);
+			//Menu.AddSubMenu(activatorMenu);
 
 			//xSLxOrbwalker (Based on Common)
 			var orbwalkerMenu = new Menu("xSLx Orbwalker", "xSLx_Orbwalker");
