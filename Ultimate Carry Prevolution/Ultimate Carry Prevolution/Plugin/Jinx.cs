@@ -101,11 +101,11 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     champMenu.AddSubMenu(fleeMenu);
                 }
 
-                var farmMenu = new Menu("Farm", "Farm");
+                var laneClearMenu = new Menu("LaneClear", "LaneClear");
                 {
-                    AddSpelltoMenu(farmMenu, "Q", true, "Switch back to Mini");
+                    AddSpelltoMenu(laneClearMenu, "Q", true, "Switch back to Mini");
 
-                    champMenu.AddSubMenu(farmMenu);
+                    champMenu.AddSubMenu(laneClearMenu);
                 }
 
                 var miscMenu = new Menu("Misc", "Misc");
@@ -212,7 +212,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				Q_Check();
 
 		    var W_Target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Physical);
-		    if (IsSpellActive("W") && W.IsReady() && W.GetPrediction(W_Target).Hitchance >= HitChance.High)
+		    if (IsSpellActive("W") && W.IsReady())
 		        W.Cast(W_Target, UsePackets());
 
 			if (IsSpellActive("E"))
@@ -272,13 +272,16 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         private void Q_Check()
         {
+            if (!Q.IsReady())
+                return;
+
             var Q_Range = 525 + 25*Q.Level;
             var target = SimpleTs.GetTarget(Q_Range, SimpleTs.DamageType.Physical);
 
-            if (!IsFishBoneActive() && MyHero.Distance(target) < 540)
+            if (!IsFishBoneActive() && MyHero.Distance(target.ServerPosition) < 525 + target.BoundingRadius)
                 Q.Cast();
 
-            if (IsFishBoneActive() && MyHero.Distance(target) > 540)
+            if (IsFishBoneActive() && MyHero.Distance(target.ServerPosition) > 525 + target.BoundingRadius)
                 Q.Cast();
         }
 
@@ -305,6 +308,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private void Cast_R_Killable()
 		{
+		    R.Range = 4000;
 			foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range) && !x.IsDead && x.IsEnemy).OrderBy(x => x.Health))
 			{
 				var health = unit.Health + unit.HPRegenRate * 2 + 25;
@@ -385,7 +389,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private bool IsFishBoneActive()
 		{
-			return xSLxOrbwalker.GetAutoAttackRange() > 565;
+			return MyHero.AttackRange > 565;
 		}
     }
 
