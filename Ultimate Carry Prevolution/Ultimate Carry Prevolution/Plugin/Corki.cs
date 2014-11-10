@@ -38,7 +38,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     AddSpelltoMenu(comboMenu, "Q", true);
                     AddSpelltoMenu(comboMenu, "E", true);
                     AddSpelltoMenu(comboMenu, "R", true);
-                    comboMenu.AddItem(new MenuItem("ComboR_Limit", "Save R Stack").SetValue(new Slider(3, 0, 7)));
+                    comboMenu.AddItem(new MenuItem("ComboR_Limit", "Save R Stack").SetValue(new Slider(0, 0, 7)));
                     champMenu.AddSubMenu(comboMenu);
                 }
 
