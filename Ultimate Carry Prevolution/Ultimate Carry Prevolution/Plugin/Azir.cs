@@ -421,8 +421,11 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         private void Misc_Insec()
         {
-            var target = (Obj_AI_Hero)Hud.SelectedUnit;
+            Obj_AI_Hero target = null;
 
+            if(Hud.SelectedUnit.Type == GameObjectType.obj_AI_Hero)
+                target = (Obj_AI_Hero)Hud.SelectedUnit;
+            
             if (target == null && !target.IsEnemy && target.Type != GameObjectType.obj_AI_Hero)
                 return;
 

@@ -128,10 +128,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				return;
 			if(Menu.Item("Focus_Target").GetValue<bool>())
 			{
-				SelectedTarget = (Obj_AI_Base)Hud.SelectedUnit;
-
-				if(SelectedTarget != null && SelectedTarget.IsValidTarget(600) && !SelectedTarget.IsDead &&
-					SelectedTarget.Type == GameObjectType.obj_AI_Hero)
+                if (Hud.SelectedUnit.Type == GameObjectType.obj_AI_Hero)
+                    SelectedTarget = (Obj_AI_Base)Hud.SelectedUnit;
+                else
+                    SelectedTarget = null;
+                
+				if(SelectedTarget != null && SelectedTarget.IsValidTarget(600) && !SelectedTarget.IsDead)
 				{
 					xSLxOrbwalker.ForcedTarget = SelectedTarget;
 					return;
