@@ -18,7 +18,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
             SetSpells();
             LoadMenu();
         }
-
+        //in progress
         private void SetSpells()
         {
             Q = new Spell(SpellSlot.Q);
@@ -35,7 +35,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         private void LoadMenu()
         {
-            var champMenu = new Menu("Jinx Plugin", "Jinx");
+            var champMenu = new Menu("Syndra Plugin", "Syndra");
             {
                 var SpellMenu = new Menu("SpellMenu", "SpellMenu");
                 {
