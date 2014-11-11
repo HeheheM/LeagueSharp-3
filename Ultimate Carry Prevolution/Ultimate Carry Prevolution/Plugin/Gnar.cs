@@ -8,6 +8,7 @@ using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 using xSLx_Orbwalker;
+using Color = System.Drawing.Color;
 
 namespace Ultimate_Carry_Prevolution.Plugin
 {
@@ -107,7 +108,31 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			Menu.AddSubMenu(champMenu);
 			Menu.AddToMainMenu();
 		}
+		public override void OnDraw()
+		{
+			if(Menu.Item("Draw_Disabled").GetValue<bool>())
+			{
+				xSLxOrbwalker.DisableDrawing();
+				return;
+			}
+			xSLxOrbwalker.EnableDrawing();
 
+			if(Menu.Item("Draw_Q").GetValue<bool>())
+				if(Q.Level > 0)
+					Utility.DrawCircle(MyHero.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
+
+			if(Menu.Item("Draw_W").GetValue<bool>())
+				if(W.Level > 0)
+					Utility.DrawCircle(MyHero.Position, W.Range, W.IsReady() ? Color.Green : Color.Red);
+
+			if(Menu.Item("Draw_E").GetValue<bool>())
+				if(E.Level > 0)
+					Utility.DrawCircle(MyHero.Position, E.Range, E.IsReady() ? Color.Green : Color.Red);
+
+			if(Menu.Item("Draw_R").GetValue<bool>())
+				if(R.Level > 0)
+					Utility.DrawCircle(MyHero.Position, R.Width, R.IsReady() ? Color.Green : Color.Red);
+		}
 		private IEnumerable<SpellSlot> GetSpellCombo()
 		{
 			var spellCombo = new List<SpellSlot>();
