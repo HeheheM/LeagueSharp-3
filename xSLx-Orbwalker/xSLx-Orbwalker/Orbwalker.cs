@@ -175,8 +175,6 @@ namespace xSLx_Orbwalker
 			if(CustomOrbwalkMode)
 				return;
 			var target = GetPossibleTarget();
-			if(target != null)
-				Game.PrintChat(target.Name);
 			Orbwalk(Game.CursorPos, target);
 		}
 
