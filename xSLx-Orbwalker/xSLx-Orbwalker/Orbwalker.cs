@@ -175,6 +175,8 @@ namespace xSLx_Orbwalker
 			if(CustomOrbwalkMode)
 				return;
 			var target = GetPossibleTarget();
+			if(target != null)
+				Game.PrintChat(target.Name);
 			Orbwalk(Game.CursorPos, target);
 		}
 
@@ -410,7 +412,7 @@ namespace xSLx_Orbwalker
 					foreach(
 					var minion in
 						from minion in
-							ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget() && InSoldierAttackRange(minion))
+							ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget()  && minion.Name != "Beacon" && InSoldierAttackRange(minion))
 						let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 +
 								1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
 						let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay(-125))
@@ -423,7 +425,7 @@ namespace xSLx_Orbwalker
 				foreach(
 					var minion in
 						from minion in
-							ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget() && InAutoAttackRange(minion))
+							ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InAutoAttackRange(minion))
 						let t = (int)(MyHero.AttackCastDelay * 1000) - 100 + Game.Ping / 2 +
 								1000 * (int)MyHero.Distance(minion) / (int)MyProjectileSpeed()
 						let predHealth = HealthPrediction.GetHealthPrediction(minion, t, FarmDelay())
@@ -459,7 +461,7 @@ namespace xSLx_Orbwalker
 					foreach(
 						var minion in
 							ObjectManager.Get<Obj_AI_Minion>()
-								.Where(minion => InSoldierAttackRange(minion) && minion.IsValidTarget() && minion.Team == GameObjectTeam.Neutral)
+								.Where(minion => InSoldierAttackRange(minion) && minion.Name != "Beacon" && minion.IsValidTarget() && minion.Team == GameObjectTeam.Neutral)
 								.Where(minion => minion.MaxHealth >= maxhealth1[0] || Math.Abs(maxhealth1[0] - float.MaxValue) < float.Epsilon))
 					{
 						tempTarget = minion;
@@ -471,7 +473,7 @@ namespace xSLx_Orbwalker
 
 				maxhealth = new float[] { 0 };
 				var maxhealth2 = maxhealth;
-				foreach(var minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget(GetAutoAttackRange(MyHero, minion)) && minion.Team == GameObjectTeam.Neutral).Where(minion => minion.MaxHealth >= maxhealth2[0] || Math.Abs(maxhealth2[0] - float.MaxValue) < float.Epsilon))
+				foreach(var minion in ObjectManager.Get<Obj_AI_Minion>().Where(minion => minion.IsValidTarget(GetAutoAttackRange(MyHero, minion)) && minion.Name != "Beacon" && minion.Team == GameObjectTeam.Neutral).Where(minion => minion.MaxHealth >= maxhealth2[0] || Math.Abs(maxhealth2[0] - float.MaxValue) < float.Epsilon))
 				{
 					tempTarget = minion;
 					maxhealth[0] = minion.MaxHealth;
@@ -491,7 +493,7 @@ namespace xSLx_Orbwalker
 				maxhealth = new float[] { 0 };
 				float[] maxhealth1 = maxhealth;
 				foreach(var minion in from minion in ObjectManager.Get<Obj_AI_Minion>()
-				   .Where(minion => minion.IsValidTarget() && InSoldierAttackRange(minion))
+				   .Where(minion => minion.IsValidTarget() && minion.Name != "Beacon" && InSoldierAttackRange(minion))
 									  let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay(-125))
 									  where predHealth >=
 											GetAzirAASandwarriorDamage(minion) + MyHero.GetAutoAttackDamage(minion, true) ||
@@ -508,7 +510,7 @@ namespace xSLx_Orbwalker
 
 			maxhealth = new float[] { 0 };
 			foreach(var minion in from minion in ObjectManager.Get<Obj_AI_Minion>()
-			   .Where(minion => minion.IsValidTarget(GetAutoAttackRange(MyHero, minion)))
+			   .Where(minion => minion.IsValidTarget(GetAutoAttackRange(MyHero, minion)) && minion.Name != "Beacon")
 								  let predHealth = HealthPrediction.LaneClearHealthPrediction(minion, (int)((MyHero.AttackDelay * 1000) * LaneClearWaitTimeMod), FarmDelay())
 								  where predHealth >=
 										2 * MyHero.GetAutoAttackDamage(minion, true) ||
