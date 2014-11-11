@@ -140,19 +140,13 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		}
 		public override void OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
 		{
-			if (unit.IsMe)
-			{
-				if(spell.SData.Name == "LucianQ" || spell.SData.Name == "LucianW" || spell.SData.Name == "LucianE" || spell.SData.Name == "LucianR")
-				{
-					_passiveUp = true;
-					_passivTimer = Environment.TickCount;
-					return;
-				}
-				//if(spell.SData.Name.Contains( "Attack"))
-				//{
-				//	_passiveUp = false;
-				//}
-			}
+			if(!unit.IsMe)
+				return;
+			if(spell.SData.Name != "LucianQ" && spell.SData.Name != "LucianW" && spell.SData.Name != "LucianE" &&
+				spell.SData.Name != "LucianR")
+				return;
+			_passiveUp = true;
+			_passivTimer = Environment.TickCount;
 		}
 
 		public override void OnPassive()
@@ -172,12 +166,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		public override void OnCombo()
 		{
+			if(IsSpellActive("E"))
+				Cast_E(true);
 			if (IsSpellActive("Q"))
 				Cast_Q(true);
 			if (IsSpellActive("W"))
 				Cast_W(true);
-			if (IsSpellActive("E"))
-				Cast_E(true);
 			if (Menu.Item("Combo_useR_Filler").GetValue<bool>())
 				Cast_R(1);
 			if (Menu.Item("Combo_useR_Kill").GetValue<bool>())

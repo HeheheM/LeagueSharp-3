@@ -215,8 +215,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
 				if(target == null)
 					return;
-				if((mode == 1 || (mode == 2 && !xSLxOrbwalker.InAutoAttackRange(target))) && Q.GetPrediction(target).Hitchance >= HitChance.High)
-					Q.Cast(target, UsePackets());
+				if (mode == 1 || (mode == 2 && !xSLxOrbwalker.InAutoAttackRange(target)))
+					Cast_BasicSkillshot_Enemy(Q);
 			}
 			else
 			{
