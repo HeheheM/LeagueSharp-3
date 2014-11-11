@@ -1,36 +1,48 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
 using xSLx_Orbwalker;
 using Color = System.Drawing.Color;
+using Menu = LeagueSharp.Common.Menu;
+using MenuItem = LeagueSharp.Common.MenuItem;
 
 namespace Ultimate_Carry_Prevolution.Plugin
 {
-    class Syndraz : Champion
+    class Syndra : Champion
     {
-        public Syndraz()
+        public Syndra()
         {
             SetSpells();
             LoadMenu();
         }
+
         //in progress
+
+        private Spell QE;
+
         private void SetSpells()
         {
-            Q = new Spell(SpellSlot.Q);
+            Q = new Spell(SpellSlot.Q, 800);
+            Q.SetSkillshot(0, 130f, 2000f, false, SkillshotType.SkillshotCircle);
 
-            W = new Spell(SpellSlot.W, 1500);
-            W.SetSkillshot(0.6f, 60f, float.MaxValue, true, SkillshotType.SkillshotLine);
+            W = new Spell(SpellSlot.W, 925);
+            W.SetSkillshot(0, 140f, 2000f, false, SkillshotType.SkillshotCircle);
 
-            E = new Spell(SpellSlot.E, 900f);
-            E.SetSkillshot(0.7f, 120f, 1750f, false, SkillshotType.SkillshotCircle);
+            E = new Spell(SpellSlot.E, 700);
+            E.SetSkillshot(250, (float)(45 * 0.5), 2500f, false, SkillshotType.SkillshotCircle);
 
-            R = new Spell(SpellSlot.R, 25000f);
-            R.SetSkillshot(0.6f, 140f, 1700f, false, SkillshotType.SkillshotLine);
+            R = new Spell(SpellSlot.R, 675);
+
+            QE = new Spell(SpellSlot.Q, 1250);
+            QE.SetSkillshot(0, 60f, 1000f, false, SkillshotType.SkillshotCircle);
+
         }
 
         private void LoadMenu()
@@ -47,17 +59,9 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
                     var wMenu = new Menu("WMenu", "WMenu");
                     {
-                        wMenu.AddItem(new MenuItem("Auto_W_Immobile", "Auto W Immobile").SetValue(false));
                         wMenu.AddItem(new MenuItem("W_Only_Orb", "Only Pick Up Orb").SetValue(false));
                         SpellMenu.AddSubMenu(wMenu);
                     }
-
-                    var eMenu = new Menu("EMenu", "EMenu");
-                    {
-                        eMenu.AddItem(new MenuItem("E_Enemy_Into_ball", "If ball is behind target").SetValue(true));
-                        SpellMenu.AddSubMenu(eMenu);
-                    }
-
                     var rMenu = new Menu("RMenu", "RMenu");
                     {
                         rMenu.AddItem(new MenuItem("R_Overkill_Check", "Overkill Check").SetValue(true));
@@ -81,6 +85,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     AddSpelltoMenu(comboMenu, "W", true);
                     AddSpelltoMenu(comboMenu, "E", true);
                     AddSpelltoMenu(comboMenu, "R", true);
+                    AddSpelltoMenu(comboMenu, "Ignite", true, "Use Ignite");
                     champMenu.AddSubMenu(comboMenu);
                 }
 
@@ -105,7 +110,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
                 var miscMenu = new Menu("Misc", "Misc");
                 {
-                    miscMenu.AddItem(new MenuItem("QE_Gap_Closer", "Use QE to Interrupt").SetValue(true));
+                    miscMenu.AddItem(new MenuItem("QE_Interrupt", "Use QE to Interrupt").SetValue(true));
                     miscMenu.AddItem(new MenuItem("E_Gap_Closer", "Use E On Gap Closer").SetValue(true));
                     champMenu.AddSubMenu(miscMenu);
                 }
@@ -113,6 +118,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 var drawMenu = new Menu("Drawing", "Drawing");
                 {
                     drawMenu.AddItem(new MenuItem("Draw_Disabled", "Disable All").SetValue(false));
+                    drawMenu.AddItem(new MenuItem("Draw_Q", "Draw Q").SetValue(true));
+                    drawMenu.AddItem(new MenuItem("Draw_QE", "Draw QE").SetValue(true));
                     drawMenu.AddItem(new MenuItem("Draw_W", "Draw W").SetValue(true));
                     drawMenu.AddItem(new MenuItem("Draw_E", "Draw E").SetValue(true));
                     drawMenu.AddItem(new MenuItem("Draw_R", "Draw R").SetValue(true));
@@ -145,17 +152,33 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 spellCombo.Add(SpellSlot.W);
             if (E.IsReady())
                 spellCombo.Add(SpellSlot.E);
-            if (R.IsReady())
-                spellCombo.Add(SpellSlot.R);
             return spellCombo;
         }
 
         private float GetComboDamage(Obj_AI_Base target)
         {
             double comboDamage = (float)ObjectManager.Player.GetComboDamage(target, GetSpellCombo());
+
+            comboDamage += Get_Ult_Dmg(target);
+
+            if (Ignite != SpellSlot.Unknown && MyHero.SummonerSpellbook.CanUseSpell(Ignite) == SpellState.Ready)
+                comboDamage += MyHero.GetSummonerSpellDamage(target, Damage.SummonerSpell.Ignite);
+
             return (float)(comboDamage + ObjectManager.Player.GetAutoAttackDamage(target));
         }
 
+        private float Get_Ult_Dmg(Obj_AI_Base enemy)
+        {
+            var damage = 0d;
+
+            if (DFG.IsReady())
+                damage += MyHero.GetItemDamage(enemy, Damage.DamageItems.Dfg) / 1.2;
+
+            if (R.IsReady())
+                damage += Math.Min(7, MyHero.Spellbook.GetSpell(SpellSlot.R).Ammo) * MyHero.GetSpellDamage(enemy, SpellSlot.R, 1) - 20;
+
+            return (float)damage * (DFG.IsReady() ? 1.2f : 1);
+        }
 
         public override void OnDraw()
         {
@@ -165,7 +188,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 return;
             }
             xSLxOrbwalker.EnableDrawing();
-
+            if (Menu.Item("Draw_Q").GetValue<bool>())
+                if (Q.Level > 0)
+                    Utility.DrawCircle(MyHero.Position, Q.Range, Q.IsReady() ? Color.Green : Color.Red);
+            if (Menu.Item("Draw_QE").GetValue<bool>())
+                if (Q.Level > 0 && E.Level >0)
+                    Utility.DrawCircle(MyHero.Position, QE.Range, Q.IsReady() && E.IsReady() ? Color.Green : Color.Red);
             if (Menu.Item("Draw_W").GetValue<bool>())
                 if (W.Level > 0)
                     Utility.DrawCircle(MyHero.Position, W.Range, W.IsReady() ? Color.Green : Color.Red);
@@ -180,10 +208,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
             if (Menu.Item("Draw_R_Killable").GetValue<bool>() && R.IsReady())
             {
-                foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range) && !x.IsDead && x.IsEnemy).OrderBy(x => x.Health))
+                foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(2000) && !x.IsDead && x.IsEnemy).OrderBy(x => x.Health))
                 {
                     var health = unit.Health + unit.HPRegenRate + 10;
-                    if (ObjectManager.Player.GetSpellDamage(unit, SpellSlot.R) > health)
+                    if (Get_Ult_Dmg(unit) > health)
                     {
                         Vector2 wts = Drawing.WorldToScreen(unit.Position);
                         Drawing.DrawText(wts[0] - 20, wts[1], Color.White, "KILL!!!");
@@ -198,57 +226,291 @@ namespace Ultimate_Carry_Prevolution.Plugin
             if (Menu.Item("Q_Auto_Immobile").GetValue<bool>() && Q_Target != null)
                 if (Q.GetPrediction(Q_Target).Hitchance == HitChance.Immobile)
                     Q.Cast(Q_Target);
-
-            //todo
-            var W_Target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
-            if (Menu.Item("Auto_W_Immobile").GetValue<bool>() && W_Target != null)
-                if (W.GetPrediction(W_Target).Hitchance == HitChance.Immobile)
-                    W.Cast(Q_Target);
         }
 
         public override void OnCombo()
         {
-            if (IsSpellActive("Q"))
-                Cast_Q();
-            if (IsSpellActive("W"))
-                Cast_W();
-            if (IsSpellActive("E"))
-                Cast_E();
-            if (IsSpellActive("R"))
+            var Q_Target = SimpleTs.GetTarget(650, SimpleTs.DamageType.Magical);
+
+            if (IsSpellActive("R") && R.IsReady())
                 Cast_R();
-            if (IsSpellActive("QE"))
+
+            if (IsSpellActive("Q") && Q.IsReady())
+                Cast_Q();
+
+
+            if (IsSpellActive("W") && W.IsReady())
+                Cast_W(true);
+
+            if (Q_Target != null)
+            if (GetComboDamage(Q_Target) >= Q_Target.Health && IsSpellActive("Ignite") && Ignite != SpellSlot.Unknown  && MyHero.Distance(Q_Target) < 650 &&
+                    MyHero.SummonerSpellbook.CanUseSpell(Ignite) == SpellState.Ready)
+                Use_Ignite(Q_Target);
+
+            if (IsSpellActive("QE") && E.IsReady() && Q.IsReady())
                 Cast_QE();
+
+            if (IsSpellActive("E") && E.IsReady())
+                Cast_E();
+
+
+        }
+
+        public override void OnHarass()
+        {
+            if (ManaManagerAllowCast())
+            {
+                if (IsSpellActive("Q") && Q.IsReady())
+                    Cast_Q();
+                if (IsSpellActive("W") && W.IsReady())
+                    Cast_W(true);
+                if (IsSpellActive("E") && E.IsReady())
+                    Cast_E();
+                if (IsSpellActive("QE") && E.IsReady() && Q.IsReady())
+                    Cast_QE();
+            }
+        }
+
+        public override void OnLaneClear()
+        {
+            if (ManaManagerAllowCast())
+            {
+                if (IsSpellActive("Q") && Q.IsReady())
+                    Cast_BasicSkillshot_AOE_Farm(Q);
+                if (IsSpellActive("W") && W.IsReady())
+                    Cast_W(false);
+                if (IsSpellActive("E") && E.IsReady())
+                {
+                    Cast_BasicSkillshot_AOE_Farm(E, 100);
+                    W.LastCastAttemptT = Environment.TickCount + 500;
+                }
+            }
+        }
+
+        public override void OnGapClose(ActiveGapcloser gapcloser)
+        {
+            if (!Menu.Item("E_Gap_Closer").GetValue<bool>()) return;
+
+            if (E.IsReady() && gapcloser.Sender.IsValidTarget(E.Range))
+                E.Cast(gapcloser.Sender, UsePackets());
+        }
+
+     
+        public override void OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
+        {
+            if (unit.IsMe && E.IsReady() && (spell.SData.Name == "SyndraQ") && Environment.TickCount - QE.LastCastAttemptT < 300)
+            {
+                E.Cast(spell.End, UsePackets());
+                W.LastCastAttemptT = Environment.TickCount + 500;
+            }
         }
 
         private void Cast_Q()
         {
-            var Q_Target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+            var Q_Target = SimpleTs.GetTarget(Q.Range + 100, SimpleTs.DamageType.Magical);
 
-            if (Q_Target == null)
-                return;
-
-            var Q_Pred = Q.GetPrediction(Q_Target);
-            if (Q_Pred.Hitchance >= HitChance.High)
-                Q.Cast(Q_Pred.CastPosition, UsePackets());
+            Q.UpdateSourcePosition();
+            if (Q.IsReady() && Q_Target != null && Q.GetPrediction(Q_Target).Hitchance >= HitChance.High)
+                Q.Cast(Q_Target, UsePackets());
         }
 
-        private void Cast_W()
+        private void Cast_W(bool mode)
         {
-            
+            if (mode)
+            {
+                var W_Target = SimpleTs.GetTarget(W.Range + 100, SimpleTs.DamageType.Magical);
+
+                var Grabbable_Obj = Get_Nearest_orb();
+                var W_Toggle_State = MyHero.Spellbook.GetSpell(SpellSlot.W).ToggleState;
+
+                if (W_Target != null)
+                {
+                    if (W_Toggle_State == 1 && Environment.TickCount - W.LastCastAttemptT > Game.Ping && W.IsReady() &&
+                        Grabbable_Obj != null)
+                    {
+                        W.Cast(Grabbable_Obj.ServerPosition);
+                        W.LastCastAttemptT = Environment.TickCount + 1000;
+                        return;
+                    }
+
+                    W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
+
+                    if (W_Toggle_State != 1 && W.IsReady() && W.GetPrediction(W_Target).Hitchance >= HitChance.High)
+                    {
+                        W.Cast(W_Target);
+                    }
+                }
+            }
+            else
+            {
+                var allMinionsW = MinionManager.GetMinions(MyHero.ServerPosition, W.Range + W.Width + 20, MinionTypes.All, MinionTeam.NotAlly);
+
+                var Grabbable_Obj = Get_Nearest_orb();
+                var W_Toggle_State = MyHero.Spellbook.GetSpell(SpellSlot.W).ToggleState;
+
+                if (W_Toggle_State == 1 && Environment.TickCount - W.LastCastAttemptT > Game.Ping && W.IsReady() &&
+                        Grabbable_Obj != null)
+                {
+                    W.Cast(Grabbable_Obj.ServerPosition);
+                    W.LastCastAttemptT = Environment.TickCount + 1000;
+                    return;
+                }
+
+                W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
+
+                var farmLocation = W.GetCircularFarmLocation(allMinionsW);
+
+                if (farmLocation.MinionsHit > 2)
+                    W.Cast(farmLocation.Position);
+            }
         }
 
         private void Cast_E()
         {
-            
+            if (getOrbCount() > 0)
+            {
+                var target = SimpleTs.GetTarget(QE.Range + 100, SimpleTs.DamageType.Magical);
+
+                foreach (var orb in getOrb().Where(x => MyHero.Distance(x) < E.Range))
+                {
+                    var Start_Pos = orb.ServerPosition;
+                    var End_Pos = MyHero.ServerPosition + (Start_Pos - MyHero.ServerPosition)*QE.Range;
+
+                    E.UpdateSourcePosition();
+                    var Target_Pos = Prediction.GetPrediction(target, E.Delay);
+
+                    var projection = Geometry.ProjectOn(Target_Pos.UnitPosition.To2D(), Start_Pos.To2D(), End_Pos.To2D());
+
+                    if (projection.IsOnSegment && E.IsReady() &&
+                        projection.LinePoint.Distance(Target_Pos.UnitPosition.To2D()) < QE.Width + target.BoundingRadius)
+                    {
+                        E.Cast(orb.ServerPosition, UsePackets());
+                        W.LastCastAttemptT = Environment.TickCount + 500;
+                        return;
+                    }
+                }
+            }
+            /*For when riot makes it to where i can stun enemy by knocking them into ball!
+            foreach (var enemy in AllHerosEnemy.Where(x => MyHero.Distance(x) < E.Range))
+            {
+                foreach (var orb in getOrb().Where(x => enemy.Distance(x) < E.Range))
+                {
+                    var Start_Pos = enemy.ServerPosition;
+                    var End_Pos = MyHero.ServerPosition + (enemy.ServerPosition - MyHero.ServerPosition) * Q.Range;
+                    
+                    var projection = Geometry.ProjectOn(orb.ServerPosition.To2D(), Start_Pos.To2D(), End_Pos.To2D());
+
+                    if (projection.IsOnSegment &&
+                            projection.LinePoint.Distance(orb.ServerPosition.To2D()) < EQ.Width + target.BoundingRadius)
+                        E.Cast(enemy, UsePackets());
+                }
+            }*/
         }
 
         private void Cast_R()
         {
-            
+            var R_Target = SimpleTs.GetTarget(R.Range + 100, SimpleTs.DamageType.Magical);
+
+            if (R_Target != null)
+            {
+                if (Menu.Item("Dont_R" + R_Target.BaseSkinName) != null)
+                {
+                    if (!Menu.Item("Dont_R" + R_Target.BaseSkinName).GetValue<bool>())
+                    {
+                        if (Menu.Item("R_Overkill_Check").GetValue<bool>())
+                        {
+                            if (MyHero.GetSpellDamage(R_Target, SpellSlot.Q) > R_Target.Health)
+                            {
+
+                            }
+                            else if (Get_Ult_Dmg(R_Target) > R_Target.Health - 20 && R_Target.Distance(MyHero) < R.Range)
+                            {
+                                if (DFG.IsReady())
+                                    Use_DFG(R_Target);
+
+                                R.CastOnUnit(R_Target, UsePackets());
+                            }
+                        }
+                        else if (Get_Ult_Dmg(R_Target) > R_Target.Health - 20 && R_Target.Distance(MyHero) < R.Range)
+                        {
+                            if (DFG.IsReady())
+                                Use_DFG(R_Target);
+
+                            R.CastOnUnit(R_Target, UsePackets());
+                        }
+                    }
+                }
+            }
         }
+
         private void Cast_QE()
         {
+            var QE_Target = SimpleTs.GetTarget(QE.Range, SimpleTs.DamageType.Magical);
 
+            if (QE_Target != null)
+            {
+                QE.UpdateSourcePosition();
+
+                var QE_Pred = QE.GetPrediction(QE_Target);
+
+                var Pred_Vec = MyHero.ServerPosition + Vector3.Normalize(QE_Pred.UnitPosition - MyHero.ServerPosition)*(E.Range - 100);
+
+                //Utility.DrawCircle(Pred_Vec, 50, Color.Red);
+
+                if (QE_Pred.Hitchance >= HitChance.Medium && Q.IsReady() && E.IsReady())
+                {
+                    Q.Cast(Pred_Vec, UsePackets());
+                    QE.LastCastAttemptT = Environment.TickCount;
+                }
+            }
         }
+
+        private int getOrbCount()
+        {
+            return
+                ObjectManager.Get<Obj_AI_Minion>().Count(obj => obj.IsValid && obj.Team == ObjectManager.Player.Team && obj.Name == "Seed");
+        }
+
+        private IEnumerable<Obj_AI_Minion> getOrb()
+        {
+            return ObjectManager.Get<Obj_AI_Minion>().Where(obj => obj.IsValid && obj.Team == ObjectManager.Player.Team && obj.Name == "Seed").ToList();
+        }
+
+        private Obj_AI_Minion Get_Nearest_orb()
+        {
+            var Orb =
+                ObjectManager.Get<Obj_AI_Minion>()
+                    .Where(obj => obj.IsValid && obj.Team == ObjectManager.Player.Team && obj.Name == "Seed")
+                    .ToList()
+                    .OrderBy(x => MyHero.Distance(x))
+                    .FirstOrDefault();
+            if(Orb != null)
+                return Orb;
+
+            if (!Menu.Item("W_Only_Orb").GetValue<bool>())
+            {
+                var minion = ObjectManager.Get<Obj_AI_Minion>().FirstOrDefault(x => x.IsValidTarget(W.Range));
+
+                if (minion != null)
+                    return minion;
+            }
+            return null;
+        }
+
+        private Obj_AI_Base Get_Current_Orb()
+        {
+            var orb = ObjectManager.Get<Obj_AI_Minion>().FirstOrDefault(x => x.Team == MyHero.Team && x.Name == "Seed" && !x.IsTargetable);
+
+            if (orb != null)
+                return orb;
+
+            var minion = ObjectManager.Get<Obj_AI_Minion>().FirstOrDefault(x => x.IsInvulnerable && x.Name != "Seed" && x.Name != "k");
+
+            if(minion != null)
+                return minion;
+
+            return null;
+        }
+
     }
 }

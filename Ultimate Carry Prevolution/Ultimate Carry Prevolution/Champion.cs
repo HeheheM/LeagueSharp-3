@@ -25,6 +25,10 @@ namespace Ultimate_Carry_Prevolution
 		public Spell E2;
 		//public Spell R2;
 
+        //items & Summoners
+        public static Items.Item DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
+        public static SpellSlot Ignite = ObjectManager.Player.GetSpellSlot("SummonerDot");
+
 		public static Menu Menu;
 
 		public Champion()
@@ -108,6 +112,19 @@ namespace Ultimate_Carry_Prevolution
 		{
 			return Menu.Item("usePackets").GetValue<bool>();
 		}
+
+	    public void Use_DFG(Obj_AI_Hero target)
+	    {
+	        if(target != null && DFG.IsReady() && MyHero.Distance(target) < 750)
+                DFG.Cast(target);
+	    }
+
+	    public void Use_Ignite(Obj_AI_Hero target)
+	    {
+	        if (target != null && Ignite != SpellSlot.Unknown &&
+	                MyHero.SummonerSpellbook.CanUseSpell(Ignite) == SpellState.Ready && MyHero.Distance(target) < 650)
+	            MyHero.SummonerSpellbook.CastSpell(Ignite, target);
+	    }
 
 		public Obj_AI_Hero Cast_BasicSkillshot_Enemy(Spell spell, SimpleTs.DamageType prio = SimpleTs.DamageType.True, float extrarange = 0)
 		{
