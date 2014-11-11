@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Xml.Xsl;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -60,10 +61,11 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
                 var miscMenu = new Menu("Misc", "Misc");
                 {
+                    miscMenu.AddItem(new MenuItem("Misc_Q_Always", "Q Before AA Toggle").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Toggle)).SetValue(false));
                     miscMenu.AddItem(new MenuItem("Misc_useE_Gap_Closer", "Use E On Gap Closer").SetValue(true));
                     miscMenu.AddItem(new MenuItem("Misc_useE_Interrupt", "Use E To Interrupt").SetValue(true));
                     miscMenu.AddItem(new MenuItem("Misc_E_Next", "E Next Auto").SetValue(new KeyBind("E".ToCharArray()[0], KeyBindType.Toggle)));
-                    miscMenu.AddItem(new MenuItem("Misc_Push_Distance", "E Push Dist").SetValue(new Slider(350, 350, 400)));
+                    miscMenu.AddItem(new MenuItem("Misc_Push_Distance", "E Push Distance").SetValue(new Slider(300, 350, 400)));
                     champMenu.AddSubMenu(miscMenu);
                 }
 
@@ -128,17 +130,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				return;
 			if(Menu.Item("Focus_Target").GetValue<bool>())
 			{
-				var hudtarget = (Obj_AI_Base)Hud.SelectedUnit;
-				if(Hud.SelectedUnit.Type == GameObjectType.obj_AI_Hero && hudtarget.IsValidTarget() && xSLxOrbwalker.InAutoAttackRange( hudtarget ))
-					SelectedTarget = (Obj_AI_Base)Hud.SelectedUnit;
-				else
-					SelectedTarget = null;
-
-				if(SelectedTarget != null && SelectedTarget.IsValidTarget(600) && !SelectedTarget.IsDead)
-				{
-					xSLxOrbwalker.ForcedTarget = SelectedTarget;
-					return;
-				}			
+			    if (SimpleTs.GetSelectedTarget() != null)
+			        xSLxOrbwalker.ForcedTarget = SimpleTs.GetSelectedTarget();
+			    else
+			        xSLxOrbwalker.ForcedTarget = null;
 			}
 
 			xSLxOrbwalker.ForcedTarget = null;
@@ -146,6 +141,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         public override void OnCombo()
         {
+            if (IsSpellActive("Q") && Menu.Item("Misc_Q_Always").GetValue<bool>() && Q.IsReady())
+                Q.Cast();
             if (IsSpellActive("E"))
                 Cast_E();
             if (IsSpellActive("R"))
@@ -160,6 +157,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         public override void OnLaneClear()
         {
+            xSLxOrbwalker.ForcedTarget = null;
+
             if (IsSpellActive("Q") && ManaManagerAllowCast())
                 Q.Cast(Game.CursorPos);
         }
@@ -211,9 +210,9 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 E.Cast(target, UsePackets());
 
             var targetPred = E.GetPrediction(target);
-            var targetPredPos = targetPred.UnitPosition + Vector3.Normalize(targetPred.UnitPosition - MyHero.ServerPosition)*pushDistance;
+            var targetPredPos = targetPred.UnitPosition + Vector3.Normalize(targetPred.UnitPosition - MyHero.ServerPosition)*(pushDistance+target.BoundingRadius);
 
-            if (IsWall(targetPredPos.To2D()))
+            if (IsPassWall(targetPred.UnitPosition, targetPredPos))
                 E.Cast(target, UsePackets());
         }
 
