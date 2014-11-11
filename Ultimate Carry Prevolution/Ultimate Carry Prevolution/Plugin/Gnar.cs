@@ -45,7 +45,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private void LoadMenu()
 		{
-			var champMenu = new Menu("Caitlyn Plugin", "Caitlyn");
+			var champMenu = new Menu("Gnar Plugin", "Gnar");
 			{
 				var comboMenu = new Menu("Combo", "Combo");
 				{
