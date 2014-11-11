@@ -260,19 +260,15 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 W.Cast(UsePackets());
         }
 
-        public override void OnAfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
-        {
-            if (unit.IsMe && Menu.Item("Misc_E_Reset").GetValue<bool>())
-            {
-                if (IsSpellActive("E") && E.IsReady())
-                {
-                    Orbwalking.ResetAutoAttackTimer();
-                    E.Cast();
-                }
-            }
-        }
+		public override void OnAfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
+		{
+			if(!unit.IsMe || !Menu.Item("Misc_E_Reset").GetValue<bool>())
+				return;
+			if(IsSpellActive("E") && E.IsReady())
+				E.Cast();
+		}
 
-        private void MEC_R()
+	    private void MEC_R()
         {
             var mecRMin = Menu.Item("Misc_MEC_R").GetValue<Slider>().Value;
 

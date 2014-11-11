@@ -22,7 +22,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			W = new Spell(SpellSlot.W);
 
 			E = new Spell(SpellSlot.E, 850);
-			E.SetSkillshot(250, 100, 2000, false, SkillshotType.SkillshotLine);
+			E.SetSkillshot(150, 50, float.MaxValue, false, SkillshotType.SkillshotLine);
 
 			R = new Spell(SpellSlot.R, 1200);
 			R.SetSkillshot(1000, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
@@ -215,8 +215,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		{
 			if(IsSpellActive("W"))
 				Cast_W();
-			if(IsSpellActive("E"))
-				Cast_E();
+			if (IsSpellActive("E"))
+				Cast_BasicSkillshot_Enemy(E);
 
 			Cast_R_MinHit();
 			Cast_Q_UnderTower();
@@ -225,7 +225,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		public override void OnHarass()
 		{
 			if(IsSpellActive("E") && ManaManagerAllowCast())
-				Cast_E();
+				Cast_BasicSkillshot_Enemy(E);
 			if(IsSpellActive("W") && ManaManagerAllowCast())
 				Cast_W();
 
@@ -252,21 +252,6 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.True);
 			if (target == null || !E.IsReady() || !IsSpellActive("E")) return;
 			W.Cast();
-		}
-
-		private void Cast_E()
-		{
-			if(!E.IsReady())
-				return;
-
-			if(!HasWBuff())
-				return;
-
-			var target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.True);
-			if(target == null)
-				return;
-			if (E.CastIfHitchanceEquals(target, HitChance.Medium, UsePackets() && IsSpellActive("W")))
-				W.Cast();
 		}
 
 		private void Cast_R_MinHit()
