@@ -52,18 +52,18 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     champMenu.AddSubMenu(harassMenu);
                 }
 
-                var fleeMenu = new Menu("Flee", "Flee");
-                {
-                    AddSpelltoMenu(fleeMenu, "E", true, "Use E to Mouse");
-                    champMenu.AddSubMenu(fleeMenu);
-                }
-
                 var laneClearMenu = new Menu("LaneClear", "LaneClear");
                 {
                     AddSpelltoMenu(laneClearMenu, "Q", true);
                     AddManaManagertoMenu(laneClearMenu, 0);
                     champMenu.AddSubMenu(laneClearMenu);
                 }
+
+				var fleeMenu = new Menu("Flee", "Flee");
+				{
+					AddSpelltoMenu(fleeMenu, "E", true, "Use E to Mouse");
+					champMenu.AddSubMenu(fleeMenu);
+				}
 
                 var miscMenu = new Menu("Misc", "Misc");
                 {
@@ -115,8 +115,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         private float GetComboDamage(Obj_AI_Base target)
         {
-            double comboDamage = (float) ObjectManager.Player.GetComboDamage(target, GetSpellCombo());
-            return (float) (comboDamage + ObjectManager.Player.GetAutoAttackDamage(target));
+			double comboDamage = (float)MyHero.GetComboDamage(target, GetSpellCombo());
+			return (float)(comboDamage + MyHero.GetAutoAttackDamage(target) * 2);
         }
 
         

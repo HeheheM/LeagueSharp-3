@@ -20,6 +20,10 @@ namespace Ultimate_Carry_Prevolution
 		public Spell W;
 		public Spell E;
 		public Spell R;
+		public Spell Q2;
+		//public Spell W2;
+		public Spell E2;
+		//public Spell R2;
 
 		public static Menu Menu;
 
