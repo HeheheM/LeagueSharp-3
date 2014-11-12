@@ -26,7 +26,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
             E.SetSkillshot(10, (float) (45*Math.PI/180), 1500, false, SkillshotType.SkillshotCone);
 
             R = new Spell(SpellSlot.R, 1500);
-            R.SetSkillshot(200, 40, 2000, true, SkillshotType.SkillshotLine);
+            R.SetSkillshot(0, 40, 1500, true, SkillshotType.SkillshotLine);
         }
 
         private void LoadMenu()
@@ -135,7 +135,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
             if (Menu.Item("Draw_R").GetValue<bool>())
                 if (R.Level > 0)
-                    Utility.DrawCircle(MyHero.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
+                    Utility.DrawCircle(MyHero.Position, MyHero.HasBuff("CorkiMissileBarrageCounterBig") ? R.Range : 1300, R.IsReady() ? Color.Green : Color.Red);
         }
 
         public override void OnPassive()
@@ -182,16 +182,31 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         private void Cast_R(int mode)
         {
-	        var reducedRange = !MyHero.HasBuff("CorkiMissileBarrageCounterBig") ? -200 : 0;
-
-            if (mode == 1 && Menu.Item("ComboR_Limit").GetValue<Slider>().Value <ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
-				Cast_BasicSkillshot_Enemy(R, SimpleTs.DamageType.Physical, reducedRange);
-            else if (mode == 2 &&Menu.Item("HarassR_Limit").GetValue<Slider>().Value < ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
-				Cast_BasicSkillshot_Enemy(R, SimpleTs.DamageType.Physical, reducedRange);
-            else if (mode == 3 &&
-                     Menu.Item("LaneClearR_Limit").GetValue<Slider>().Value <
-                     ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
-	            Cast_BasicSkillshot_AOE_Farm(R, reducedRange);
+	        var range = MyHero.HasBuff("CorkiMissileBarrageCounterBig") ? 1500 : 1300;
+            var target = SimpleTs.GetTarget(range, SimpleTs.DamageType.Magical);
+            if (target != null)
+            {
+                R.UpdateSourcePosition();
+                Game.PrintChat("Rawr");
+                if (mode == 1 &&
+                    Menu.Item("ComboR_Limit").GetValue<Slider>().Value <
+                    ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
+                {
+                    if (R.GetPrediction(target).Hitchance >= HitChance.High)
+                        R.Cast(target, UsePackets());
+                }
+                else if (mode == 2 &&
+                         Menu.Item("HarassR_Limit").GetValue<Slider>().Value <
+                         ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
+                {
+                    if (R.GetPrediction(target).Hitchance >= HitChance.High)
+                        R.Cast(target, UsePackets());
+                }
+                else if (mode == 3 &&
+                         Menu.Item("LaneClearR_Limit").GetValue<Slider>().Value <
+                         ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo) 
+                    Cast_BasicSkillshot_AOE_Farm(R, 1300);
+            }
         }
     }
 }

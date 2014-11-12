@@ -45,6 +45,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 					var wMenu = new Menu("WMenu", "WMenu");
 					{
+                        wMenu.AddItem(new MenuItem("W_Min_Range", "W Min Range Sliders").SetValue(new Slider(300, 0, 1500)));
 						wMenu.AddItem(new MenuItem("Auto_W_Slow", "Auto W Slow").SetValue(true));
 						wMenu.AddItem(new MenuItem("Auto_W_Immobile", "Auto W Immobile").SetValue(true));
 						SpellMenu.AddSubMenu(wMenu);
@@ -61,7 +62,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 					var rMenu = new Menu("RMenu", "RMenu");
 					{
-						rMenu.AddItem(new MenuItem("R_Min_Range", "R Min Range Sliders").SetValue(new Slider(300, 0, 1500)));
+						rMenu.AddItem(new MenuItem("R_Min_Range", "R Min Range Sliders").SetValue(new Slider(300, 0, 1000)));
                         rMenu.AddItem(new MenuItem("R_Max_Range", "R Max Range Sliders").SetValue(new Slider(2000, 0, 4000)));
 						rMenu.AddItem(new MenuItem("R_Overkill_Check", "Overkill Check").SetValue(true));
 
@@ -182,7 +183,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 			if (Menu.Item("Draw_R_Killable").GetValue<bool>() && R.IsReady())
 			{
-				foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range) && !x.IsDead && x.IsEnemy).OrderBy(x => x.Health))
+				foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(4000) && !x.IsDead && x.IsEnemy).OrderBy(x => x.Health))
 				{
 				    var health = unit.Health + unit.HPRegenRate + 25;
 					if (ObjectManager.Player.GetSpellDamage(unit, SpellSlot.R) > health)
@@ -209,12 +210,19 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		public override void OnCombo()
 		{
             var W_Target = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Physical);
-		    var W_Pred = W.GetPrediction(W_Target);
-            if (IsSpellActive("W") && W.IsReady() && W_Pred.CollisionObjects.Count == 0)
-                W.Cast(W_Pred.CastPosition, UsePackets());
-            
+            var minRange = Menu.Item("W_Min_Range").GetValue<Slider>().Value;
 
-			if (IsSpellActive("Q"))
+		    if (W_Target != null)
+		    {
+		        if (MyHero.Distance(W_Target) > minRange)
+		        {
+		            var W_Pred = W.GetPrediction(W_Target);
+		            if (IsSpellActive("W") && W.IsReady() && W_Pred.Hitchance >= HitChance.High)
+		                W.Cast(W_Pred.CastPosition, UsePackets());
+		        }
+		    }
+
+		    if (IsSpellActive("Q"))
 				Q_Check();
 
 		    if (IsSpellActive("E"))
@@ -228,11 +236,19 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			if (ManaManagerAllowCast())
 			{
                 var W_Target = SimpleTs.GetTarget(1500, SimpleTs.DamageType.Physical);
-                var W_Pred = W.GetPrediction(W_Target);
-                if (IsSpellActive("W") && W.IsReady() && W_Pred.CollisionObjects.Count == 0)
-                    W.Cast(W_Pred.CastPosition, UsePackets());
+                var minRange = Menu.Item("W_Min_Range").GetValue<Slider>().Value;
 
-				if (IsSpellActive("Q"))
+			    if (W_Target != null)
+			    {
+			        if (MyHero.Distance(W_Target) > minRange)
+			        {
+			            var W_Pred = W.GetPrediction(W_Target);
+			            if (IsSpellActive("W") && W.IsReady() && W_Pred.Hitchance >= HitChance.High)
+			                W.Cast(W_Pred.CastPosition, UsePackets());
+			        }
+			    }
+
+			    if (IsSpellActive("Q"))
 					Q_Check();
 			}
 		}
@@ -281,34 +297,53 @@ namespace Ultimate_Carry_Prevolution.Plugin
             var Q_Range = 525 + (50+25*Q.Level);
             var target = SimpleTs.GetTarget(Q_Range, SimpleTs.DamageType.Physical);
 
-            if (!IsFishBoneActive() && MyHero.Distance(target.ServerPosition) < 565)
+            if (target != null)
             {
-                Q.Cast();
-                return;
+                if (!IsFishBoneActive() && MyHero.Distance(target.ServerPosition) < 565)
+                {
+                    Q.Cast();
+                    return;
+                }
+                if (IsFishBoneActive() && MyHero.Distance(target.ServerPosition) > 565)
+                    Q.Cast();
             }
-            if (IsFishBoneActive() && MyHero.Distance(target.ServerPosition) > 565)
-                Q.Cast();
         }
 
         private void Cast_R()
 		{
 			var target = SimpleTs.GetTarget(R.Range, SimpleTs.DamageType.Physical);
+            if (target != null)
+            {
+                if (Menu.Item("Dont_R" + target.BaseSkinName) != null)
+                {
+                    if (!Menu.Item("Dont_R" + target.BaseSkinName).GetValue<bool>())
+                    {
+                        if (target.IsValidTarget(Q.Range))
+                        {
+                            if (MyHero.GetSpellDamage(target, SpellSlot.R) > target.Health + 25)
+                            {
+                                var minRange = Menu.Item("R_Min_Range").GetValue<Slider>().Value;
+                                var maxRange = Menu.Item("R_Max_Range").GetValue<Slider>().Value;
 
-			if (target.IsValidTarget(Q.Range))
-			{
-				if (MyHero.GetSpellDamage(target, SpellSlot.R) > target.Health + 25)
-				{
-					var minRange = Menu.Item("R_Min_Range").GetValue<Slider>().Value;
-					var maxRange = Menu.Item("R_Max_Range").GetValue<Slider>().Value;
+                                if (MyHero.Distance(target) > minRange && MyHero.Distance(target) < maxRange)
+                                {
+                                    if (Menu.Item("R_Overkill_Check").GetValue<bool>())
+                                    {
+                                        if (MyHero.GetAutoAttackDamage(target)*3 >= target.Health)
+                                            return;
 
-					if (MyHero.Distance(target) > minRange && MyHero.Distance(target) < maxRange)
-					{
-						if (CountAlliesNearTarget(target, 400) < 2 || !Menu.Item("R_Overkill_Check").GetValue<bool>())
-							R.Cast(target, UsePackets());
-					}
-		        }
-		    }
-
+                                        R.Cast(target, UsePackets());
+                                    }
+                                    else
+                                    {
+                                        R.Cast(target, UsePackets());
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 		}
 
 		private void Cast_R_Killable()
@@ -316,12 +351,18 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		    R.Range = 4000;
 			foreach (var unit in ObjectManager.Get<Obj_AI_Hero>().Where(x => x.IsValidTarget(R.Range) && !x.IsDead && x.IsEnemy).OrderBy(x => x.Health))
 			{
-				var health = unit.Health + unit.HPRegenRate * 2 + 25;
-				if (ObjectManager.Player.GetSpellDamage(unit, SpellSlot.R) > health)
-				{
-					R.Cast(unit, UsePackets());
-					return;
-				}
+                if (Menu.Item("Dont_R" + unit.BaseSkinName) != null)
+			    {
+                    if (!Menu.Item("Dont_R" + unit.BaseSkinName).GetValue<bool>())
+			        {
+			            var health = unit.Health + unit.HPRegenRate*2 + 25;
+			            if (ObjectManager.Player.GetSpellDamage(unit, SpellSlot.R) > health)
+			            {
+			                R.Cast(unit, UsePackets());
+			                return;
+			            }
+			        }
+			    }
 			}
 		}
 

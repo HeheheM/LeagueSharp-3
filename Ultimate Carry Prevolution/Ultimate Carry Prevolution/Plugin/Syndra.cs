@@ -104,7 +104,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     AddSpelltoMenu(laneClearMenu, "Q", true);
                     AddSpelltoMenu(laneClearMenu, "W", true);
                     AddSpelltoMenu(laneClearMenu, "E", true);
-                    AddManaManagertoMenu(harassMenu, 30);
+                    AddManaManagertoMenu(laneClearMenu, 30);
                     champMenu.AddSubMenu(laneClearMenu);
                 }
 
@@ -175,7 +175,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 damage += MyHero.GetItemDamage(enemy, Damage.DamageItems.Dfg) / 1.2;
 
             if (R.IsReady())
-                damage += Math.Min(7, MyHero.Spellbook.GetSpell(SpellSlot.R).Ammo) * MyHero.GetSpellDamage(enemy, SpellSlot.R, 1) - 20;
+                damage += (3 + getOrbCount()) * MyHero.GetSpellDamage(enemy, SpellSlot.R, 1) - 20;
 
             return (float)damage * (DFG.IsReady() ? 1.2f : 1);
         }
@@ -377,11 +377,11 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     var End_Pos = MyHero.ServerPosition + (Start_Pos - MyHero.ServerPosition)*QE.Range;
 
                     E.UpdateSourcePosition();
-                    var Target_Pos = Prediction.GetPrediction(target, E.Delay);
+                    var Target_Pos = QE.GetPrediction(target);
 
                     var projection = Geometry.ProjectOn(Target_Pos.UnitPosition.To2D(), Start_Pos.To2D(), End_Pos.To2D());
 
-                    if (projection.IsOnSegment && E.IsReady() &&
+                    if (projection.IsOnSegment && E.IsReady() && Target_Pos.Hitchance >= HitChance.High && 
                         projection.LinePoint.Distance(Target_Pos.UnitPosition.To2D()) < QE.Width + target.BoundingRadius)
                     {
                         E.Cast(orb.ServerPosition, UsePackets());
@@ -423,7 +423,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                             {
 
                             }
-                            else if (Get_Ult_Dmg(R_Target) > R_Target.Health - 20 && R_Target.Distance(MyHero) < R.Range)
+                            else if (Get_Ult_Dmg(R_Target) > R_Target.Health + 20 && R_Target.Distance(MyHero) < R.Range)
                             {
                                 if (DFG.IsReady())
                                     Use_DFG(R_Target);
@@ -457,7 +457,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
                 //Utility.DrawCircle(Pred_Vec, 50, Color.Red);
 
-                if (QE_Pred.Hitchance >= HitChance.Medium && Q.IsReady() && E.IsReady())
+                if (QE_Pred.Hitchance >= HitChance.High && Q.IsReady() && E.IsReady())
                 {
                     Q.Cast(Pred_Vec, UsePackets());
                     QE.LastCastAttemptT = Environment.TickCount;
