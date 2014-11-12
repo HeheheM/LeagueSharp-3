@@ -292,7 +292,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
             if (!Menu.Item("E_Gap_Closer").GetValue<bool>()) return;
 
             if (E.IsReady() && gapcloser.Sender.IsValidTarget(E.Range))
+            {
                 E.Cast(gapcloser.Sender, UsePackets());
+                W.LastCastAttemptT = Environment.TickCount + 500;
+            }
         }
 
      
@@ -329,11 +332,19 @@ namespace Ultimate_Carry_Prevolution.Plugin
                         Grabbable_Obj != null)
                     {
                         W.Cast(Grabbable_Obj.ServerPosition);
-                        W.LastCastAttemptT = Environment.TickCount + 1000;
+                        W.LastCastAttemptT = Environment.TickCount + 500;
                         return;
                     }
 
                     W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
+                    if (MyHero.Distance(W_Target) < E.Range)
+                    {
+                        if (W_Toggle_State != 1 && W.IsReady() && W.GetPrediction(W_Target).Hitchance >= HitChance.High &&
+                            Environment.TickCount - W.LastCastAttemptT > Game.Ping + 100)
+                        {
+                            W.Cast(W_Target);
+                        }
+                    }
 
                     if (W_Toggle_State != 1 && W.IsReady() && W.GetPrediction(W_Target).Hitchance >= HitChance.High)
                     {
