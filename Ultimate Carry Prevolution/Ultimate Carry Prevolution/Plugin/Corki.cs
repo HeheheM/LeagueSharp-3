@@ -187,19 +187,19 @@ namespace Ultimate_Carry_Prevolution.Plugin
             if (target != null)
             {
                 R.UpdateSourcePosition();
-                Game.PrintChat("Rawr");
+
                 if (mode == 1 &&
                     Menu.Item("ComboR_Limit").GetValue<Slider>().Value <
                     ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
                 {
-                    if (R.GetPrediction(target).Hitchance >= HitChance.High)
+                    if (R.GetPrediction(target).Hitchance >= HitChance.Medium)
                         R.Cast(target, UsePackets());
                 }
                 else if (mode == 2 &&
                          Menu.Item("HarassR_Limit").GetValue<Slider>().Value <
                          ObjectManager.Player.Spellbook.GetSpell(SpellSlot.R).Ammo)
                 {
-                    if (R.GetPrediction(target).Hitchance >= HitChance.High)
+                    if (R.GetPrediction(target).Hitchance >= HitChance.Medium)
                         R.Cast(target, UsePackets());
                 }
                 else if (mode == 3 &&
