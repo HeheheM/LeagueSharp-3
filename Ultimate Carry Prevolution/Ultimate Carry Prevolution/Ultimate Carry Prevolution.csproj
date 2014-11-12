@@ -93,6 +93,7 @@
     <Compile Include="Plugin\Blitzcrank.cs" />
     <Compile Include="Plugin\Caitlyn.cs" />
     <Compile Include="Plugin\Corki.cs" />
+    <Compile Include="Plugin\Fiora.cs" />
     <Compile Include="Plugin\Gnar.cs" />
     <Compile Include="Plugin\Jinx.cs" />
     <Compile Include="Plugin\Leona.cs" />
