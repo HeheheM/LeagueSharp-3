@@ -41,7 +41,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
             R = new Spell(SpellSlot.R, 675);
 
             QE = new Spell(SpellSlot.Q, 1250);
-            QE.SetSkillshot(0, 60f, 1000f, false, SkillshotType.SkillshotCircle);
+            QE.SetSkillshot(400, 60f, 1000f, false, SkillshotType.SkillshotCircle);
 
         }
 
@@ -110,6 +110,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
                 var miscMenu = new Menu("Misc", "Misc");
                 {
+                    miscMenu.AddItem(new MenuItem("Misc_QE_Mouse", "QE to mouse").SetValue(new KeyBind("T".ToCharArray()[0], KeyBindType.Press)));
                     miscMenu.AddItem(new MenuItem("QE_Interrupt", "Use QE to Interrupt").SetValue(true));
                     miscMenu.AddItem(new MenuItem("E_Gap_Closer", "Use E On Gap Closer").SetValue(true));
                     champMenu.AddSubMenu(miscMenu);
@@ -222,6 +223,14 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         public override void OnPassive()
         {
+
+            if (Menu.Item("Misc_QE_Mouse").GetValue<KeyBind>().Active)
+            {
+                var vec = MyHero.ServerPosition + Vector3.Normalize(Game.CursorPos - MyHero.ServerPosition)*(E.Range - 50);
+                QE.Cast(vec, UsePackets());
+                QE.LastCastAttemptT = Environment.TickCount;
+            }
+                
             var Q_Target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
             if (Menu.Item("Q_Auto_Immobile").GetValue<bool>() && Q_Target != null)
                 if (Q.GetPrediction(Q_Target).Hitchance == HitChance.Immobile)
@@ -306,6 +315,14 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 E.Cast(spell.End, UsePackets());
                 W.LastCastAttemptT = Environment.TickCount + 500;
             }
+        }
+        public override void OnPossibleToInterrupt(Obj_AI_Base unit, InterruptableSpell spell)
+        {
+            if (spell.DangerLevel < InterruptableDangerLevel.Medium || unit.IsAlly)
+                return;
+
+            if (Menu.Item("QE_Interrupt").GetValue<bool>() && unit.IsValidTarget(QE.Range))
+                Cast_QE(unit);
         }
 
         private void Cast_Q()
@@ -454,9 +471,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
             }
         }
 
-        private void Cast_QE()
+        private void Cast_QE(Obj_AI_Base target = null)
         {
             var QE_Target = SimpleTs.GetTarget(QE.Range, SimpleTs.DamageType.Magical);
+
+            if (target != null)
+                QE_Target = (Obj_AI_Hero) target;
 
             if (QE_Target != null)
             {
