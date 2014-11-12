@@ -128,6 +128,7 @@ namespace xSLx_Orbwalker
 			}
 			menu.AddSubMenu(menuModes);
 			menu.AddItem(new MenuItem("xSLx_info", "Copyright by xSLx"));
+			menu.AddItem(new MenuItem("xSLx_info2", "Credits: xSLx & Esk0r"));
 
 			Drawing.OnDraw += OnDraw;
 			Game.OnGameUpdate += OnUpdate;
