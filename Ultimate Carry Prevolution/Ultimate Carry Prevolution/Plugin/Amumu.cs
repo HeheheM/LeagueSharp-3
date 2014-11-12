@@ -195,6 +195,15 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				return;
 			if(mode2)
 			{
+				Obj_AI_Hero target;
+				if (! R.IsReady( ))
+				{
+					target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+					if(target == null)
+						return;
+					if(mode == 1 || (mode == 2 && !xSLxOrbwalker.InAutoAttackRange(target)))
+						Cast_BasicSkillshot_Enemy(Q);
+				}
 				if(R.IsReady() && Menu.Item("Combo_useR_onAmount").GetValue<Slider>().Value > 0)
 				{
 					var couldHitTargets = 0;
@@ -212,7 +221,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					if(couldHitTargets >= Menu.Item("Combo_useR_onAmount").GetValue<Slider>().Value)
 						Q.Cast(bestTarget, UsePackets());
 				}
-				var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+				target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
 				if(target == null)
 					return;
 				if (mode == 1 || (mode == 2 && !xSLxOrbwalker.InAutoAttackRange(target)))

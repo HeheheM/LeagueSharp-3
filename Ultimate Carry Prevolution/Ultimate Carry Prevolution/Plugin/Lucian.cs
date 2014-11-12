@@ -178,7 +178,6 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				Cast_R(2);
 
 		}
-
 		public override void OnAfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
 		{
 			if (unit.IsMe && _passiveUp)
@@ -216,6 +215,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				{
 					_passivTimer = Environment.TickCount;
 					Q.CastOnUnit(target, UsePackets());
+					Utility.DelayAction.Add(150, xSLxOrbwalker.ResetAutoAttackTimer);
 					return;
 				}
 				target = SimpleTs.GetTarget(QMaxRange, SimpleTs.DamageType.Physical);
@@ -225,6 +225,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				{
 					_passivTimer = Environment.TickCount;
 					Q.CastOnUnit(obj, UsePackets());
+					Utility.DelayAction.Add(150, xSLxOrbwalker.ResetAutoAttackTimer);
 					return;
 				}
 			}
