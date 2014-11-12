@@ -21,7 +21,7 @@ namespace Ultimate_Carry_Prevolution
 		public Spell E;
 		public Spell R;
 		public Spell Q2;
-		//public Spell W2;
+		public Spell W2;
 		public Spell E2;
 		//public Spell R2;
 

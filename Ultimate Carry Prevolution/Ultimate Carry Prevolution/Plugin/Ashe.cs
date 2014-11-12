@@ -211,7 +211,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			{
 				var allMinions = MinionManager.GetMinions(MyHero.Position, W.Range, MinionTypes.All, MinionTeam.NotAlly);
 				var farmlocation = W.GetCircularFarmLocation(allMinions, 300);
-				if(farmlocation.Position.Distance(MyHero.Position) > 300 && (farmlocation.MinionsHit >= 3 || allMinions.Any(x => x.Team == GameObjectTeam.Neutral)))
+				if(farmlocation.Position.Distance(MyHero.Position) > 300 && farmlocation.Position.Distance(MyHero.Position)  < W.Range && (farmlocation.MinionsHit >= 3 || allMinions.Any(x => x.Team == GameObjectTeam.Neutral)))
 					W.Cast(farmlocation.Position, UsePackets());
 			}
 		}

@@ -28,9 +28,14 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			W = new Spell(SpellSlot.W, 1000);
 			W.SetSkillshot(300, 80, 1600, true, SkillshotType.SkillshotLine);
 
+			W2 = new Spell(SpellSlot.W, 1000);
+			W2.SetSkillshot(300, 300, 1600, false, SkillshotType.SkillshotCircle);
+
+
 			E = new Spell(SpellSlot.E, 475);
 			E.SetSkillshot(250, 1, float.MaxValue, false, SkillshotType.SkillshotLine);
 
+			
 			R = new Spell(SpellSlot.R, 1400);
 			R.SetSkillshot(100, 110, 2800, true, SkillshotType.SkillshotLine);
 		}
@@ -184,6 +189,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		{
 			if(unit.IsMe && _passiveUp)
 				Utility.DelayAction.Add(100, () => _passiveUp = false);
+			if (Environment.TickCount - _passivTimer < 250)
+				return;
 			if(!Q.IsReady() || !unit.IsMe )
 				return;
 			if (_passiveUp || !IsSpellActive("Q"))
@@ -283,11 +290,11 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			{
 				nearstMinion[0] = collmin;
 			}
-			if(!(target.Distance(nearstMinion[0]) < W.Width + 220))
+			if(!(target.Distance(nearstMinion[0]) < W2.Width))
 				return;
-			W.UpdateSourcePosition();
+			W2.UpdateSourcePosition();
 			_passivTimer = Environment.TickCount;
-			W.Cast(target, UsePackets());
+			W2.Cast(target, UsePackets());
 		}
 		private void Cast_E(bool mode)
 		{
