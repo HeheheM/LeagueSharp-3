@@ -160,7 +160,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     Utility.DrawCircle(MyHero.Position, R.Range, R.IsReady() ? Color.Green : Color.Red);
         }
 
-        public override void OnSendPacket(GamePacketEventArgs args)
+        public override void OnProcessPacket(GamePacketEventArgs args)
         {
             if (IsSpellActive("Q") && Menu.Item("Q_AA_Windup").GetValue<bool>())
             {

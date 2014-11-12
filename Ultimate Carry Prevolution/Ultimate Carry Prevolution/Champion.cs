@@ -38,6 +38,7 @@ namespace Ultimate_Carry_Prevolution
 
 			Game.OnGameUpdate += OnGameUpdateModes;
 			Game.OnGameSendPacket += OnSendPacket;
+		    Game.OnGameProcessPacket += OnProcessPacket;
 			Drawing.OnDraw += OnDraw;
 			Interrupter.OnPossibleToInterrupt += OnPossibleToInterrupt;
 			AntiGapcloser.OnEnemyGapcloser += OnGapClose;
@@ -278,6 +279,12 @@ namespace Ultimate_Carry_Prevolution
 		{
 			// Virtual OnSendPacket
 		}
+
+        public virtual void OnProcessPacket(GamePacketEventArgs args)
+        {
+            // Virtual OnSendPacket
+        }
+
 		public virtual void OnAttack(Obj_AI_Base unit, Obj_AI_Base target)
 		{
 			// Virtual OnAttack
