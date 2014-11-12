@@ -359,8 +359,13 @@ namespace xSLx_Orbwalker
 				if(unit.IsMelee())
 					Utility.DelayAction.Add(
 						(int)(unit.AttackCastDelay * 1000 + Game.Ping * 0.5) + 50, () => FireAfterAttack(unit, _lastTarget));
+
+				FireOnAttack(unit, _lastTarget);
 			}
-			FireOnAttack(unit, _lastTarget);
+			else
+			{
+				FireOnAttack(unit, (Obj_AI_Base)spell.Target);
+			}
 		}
 
 		public static double GetAzirAASandwarriorDamage(Obj_AI_Base unit)
