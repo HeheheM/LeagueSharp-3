@@ -257,11 +257,13 @@ namespace xSLx_Orbwalker
 				FireBeforeAttack(target);
 				if(!_disableNextAttack)
 				{
-					if (Menu.Item("Harass_Lasthit").GetValue<bool>() || CurrentMode != Mode.Harass || !target.IsMinion)
-					{
+					//if (Menu.Item("Harass_Lasthit").GetValue<bool>() || CurrentMode != Mode.Harass || !target.IsMinion)
+					//	if(Menu.Item("Harass_Lasthit").GetValue<bool>() || CurrentMode != Mode.Harass || !target.IsMinion)
+					//{
 						if (MyHero.IssueOrder(GameObjectOrder.AttackUnit, target))
-							_lastAATick = Environment.TickCount + Game.Ping/2;
-					}
+							//_lastAATick = Environment.TickCount + Game.Ping/2;
+						_lastAATick = Environment.TickCount ;
+					//}
 				}
 			}
 			if(!CanMove() || !IsAllowedToMove())
@@ -638,14 +640,14 @@ namespace xSLx_Orbwalker
 				return;
 			var additional = 0;
 			if(Game.Ping >= 100)
-				additional = Game.Ping / 100 * 10;
+				additional = Game.Ping / 100 * 5;
 			else if(Game.Ping > 40 && Game.Ping < 100)
-				additional = Game.Ping / 100 * 20;
+				additional = Game.Ping / 100 * 10;
 			else if(Game.Ping <= 40)
 				additional = +20;
 			var windUp = Game.Ping + additional;
 			if(windUp < 40)
-				windUp = 40;
+				windUp = 300;
 			Menu.Item("xSLxOrbwalker_Misc_ExtraWindUp").SetValue(windUp < 200 ? new Slider(windUp, 200, 0) : new Slider(200, 200, 0));
 		}
 

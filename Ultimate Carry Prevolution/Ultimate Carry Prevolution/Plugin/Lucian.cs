@@ -180,8 +180,28 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		}
 		public override void OnAfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
 		{
-			if (unit.IsMe && _passiveUp)
-				_passiveUp = false;
+			if(unit.IsMe && _passiveUp)
+				Utility.DelayAction.Add(100, () => _passiveUp = false);
+			if(!Q.IsReady() || !unit.IsMe )
+				return;
+			if (_passiveUp || !IsSpellActive("Q"))
+				return;
+			var enemy = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+			if(enemy != null)
+			{
+				_passivTimer = Environment.TickCount;
+				Q.CastOnUnit(enemy, UsePackets());
+				return;
+			}
+			enemy = SimpleTs.GetTarget(QMaxRange, SimpleTs.DamageType.Physical);
+			if(enemy == null)
+				return;
+			foreach(var obj in ObjectManager.Get<Obj_AI_Base>().Where(obj => obj.IsValidTarget(Q.Range) && (obj.ServerPosition.To2D().Distance(MyHero.ServerPosition.To2D(), Q.GetPrediction(enemy).UnitPosition.To2D(), true) < 50)))
+			{
+				_passivTimer = Environment.TickCount;
+				Q.CastOnUnit(obj, UsePackets());
+				return;
+			}
 		}
 
 		public override void OnHarass()
@@ -211,11 +231,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			if (mode)
 			{
 				var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+				//if (xSLxOrbwalker.InAutoAttackRange(target))
+				//	return;
 				if(target != null)
 				{
 					_passivTimer = Environment.TickCount;
 					Q.CastOnUnit(target, UsePackets());
-					Utility.DelayAction.Add(150, xSLxOrbwalker.ResetAutoAttackTimer);
 					return;
 				}
 				target = SimpleTs.GetTarget(QMaxRange, SimpleTs.DamageType.Physical);
@@ -223,9 +244,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					return;
 				foreach(var obj in ObjectManager.Get<Obj_AI_Base>().Where(obj => obj.IsValidTarget(Q.Range) && (obj.ServerPosition.To2D().Distance(MyHero.ServerPosition.To2D(), Q.GetPrediction(target).UnitPosition.To2D(), true) < 50)))
 				{
+					//if(xSLxOrbwalker.InAutoAttackRange(obj))
+					//	return;
 					_passivTimer = Environment.TickCount;
 					Q.CastOnUnit(obj, UsePackets());
-					Utility.DelayAction.Add(150, xSLxOrbwalker.ResetAutoAttackTimer);
 					return;
 				}
 			}
