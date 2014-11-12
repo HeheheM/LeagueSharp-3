@@ -21,8 +21,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 			W = new Spell(SpellSlot.W);
 
-			E = new Spell(SpellSlot.E, 850);
-			E.SetSkillshot(150, 50, float.MaxValue, false, SkillshotType.SkillshotLine);
+			E = new Spell(SpellSlot.E, 800);
+			E.SetSkillshot(50, 100, 2050, false, SkillshotType.SkillshotLine);
 
 			R = new Spell(SpellSlot.R, 1200);
 			R.SetSkillshot(1000, 300, float.MaxValue, false, SkillshotType.SkillshotCircle);
@@ -155,12 +155,9 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		{
 			if(Menu.Item("W_AgainstSpells").GetValue<bool>())
 			{
-				// shield against targeted spells
 				if(spell.Target != null && spell.Target.IsMe)
 					Cast_W();
 
-				// could change 200 to something more dinamic like spell.SData.LineWidth
-				// or let Evade take care of shielding (or integrate with Evade)
 				if(spell.End.Distance(MyHero.ServerPosition) < 200)
 					Cast_W();
 			}
@@ -168,10 +165,9 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		public override void ObjSpellMissileOnOnCreate(GameObject sender, EventArgs args)
 		{
-			// Ward
 			if(Menu.Item("Q_AgainstWard").GetValue<bool>() && sender.Name.ToLower().Contains("ward") && MyHero.Distance(sender.Position) <= MyHero.AttackRange)
 			{
-				var query = xSLxOrbwalker.AllEnemys.Where(xSLxOrbwalker.InAutoAttackRange); // dont focus ward if enemy in range
+				var query = AllHerosEnemy.Where(xSLxOrbwalker.InAutoAttackRange); // dont focus ward if enemy in range
 
 				if(!query.Any())
 					MyHero.IssueOrder(GameObjectOrder.AttackUnit, sender);
@@ -262,7 +258,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			if(xSLxOrbwalker.CurrentMode == xSLxOrbwalker.Mode.Combo)
 				minEnemyCount = Menu.Item("Combo_useR_enemyCount").GetValue<Slider>().Value;
 
-			var query = xSLxOrbwalker.AllEnemys
+			var query = AllHerosEnemy
 				.Where(x => x.IsValidTarget(R.Range))
 				.Select(x => x.ServerPosition.To2D());
 
@@ -276,18 +272,13 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			if(!Menu.Item("Q_UnderTurret").GetValue<bool>())
 				return;
 			// need some improve to use E to gapcloser on enemy and stun under tower
-			var query = xSLxOrbwalker.AllEnemys.Where(x => xSLxOrbwalker.InAutoAttackRange(x) && Utility.UnderTurret(x));
+			var query = AllHerosEnemy.Where(x => xSLxOrbwalker.InAutoAttackRange(x) && Utility.UnderTurret(x));
 			var objAiHeroes = query as Obj_AI_Hero[] ?? query.ToArray();
 			if(!objAiHeroes.Any())
 				return;
 			var target = objAiHeroes.First();
 			MyHero.IssueOrder(GameObjectOrder.AttackUnit, target);
 			Cast_Q(target);
-		}
-
-		private bool HasWBuff()
-		{
-			return MyHero.HasBuff("LeonaSolarBarrier");
 		}
 
 	}

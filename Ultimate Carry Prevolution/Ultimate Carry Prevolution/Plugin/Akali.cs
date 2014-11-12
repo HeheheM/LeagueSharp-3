@@ -188,6 +188,11 @@ namespace Ultimate_Carry_Prevolution.Plugin
 															 xSLxOrbwalker.InAutoAttackRange(minion)))
 					Q.Cast(minion);
 
+				foreach(var minion in MinionManager.GetMinions(MyHero.Position, Q.Range).Where(minion => HealthPrediction.GetHealthPrediction(minion,
+						(int)(Q.Delay + (minion.Distance(MyHero) / Q.Speed)) ) <
+															 MyHero.GetSpellDamage(minion, SpellSlot.Q) 	))
+					Q.Cast(minion);
+
 				foreach(var minion in MinionManager.GetMinions(MyHero.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.Neutral, MinionOrderTypes.MaxHealth).Where(minion => MyHero.Distance(minion) <= Q.Range))
 					Q.Cast(minion);
 			}

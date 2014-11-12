@@ -1,9 +1,11 @@
 ﻿using System;
-using System.Drawing;
+using System.Collections.Generic;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
+using SharpDX;
 using xSLx_Orbwalker;
+using Color = System.Drawing.Color;
 
 namespace Ultimate_Carry_Prevolution.Plugin
 {
@@ -171,7 +173,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			if (IsSpellActive("Q"))
 				Cast_Q(true);
 			if (IsSpellActive("W"))
-				Cast_W(true);
+				Cast_W();
 			if (Menu.Item("Combo_useR_Filler").GetValue<bool>())
 				Cast_R(1);
 			if (Menu.Item("Combo_useR_Kill").GetValue<bool>())
@@ -209,7 +211,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			if(IsSpellActive("Q") && ManaManagerAllowCast())
 				Cast_Q(true);
 			if(IsSpellActive("W") && ManaManagerAllowCast())
-				Cast_W(true);
+				Cast_W();
 		}
 
 		public override void OnLaneClear()
@@ -262,7 +264,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			}
 		}
 
-		private void Cast_W(bool mode)
+		private void Cast_W()
 		{
 			if(!W.IsReady() || _passiveUp || Environment.TickCount - _passivTimer < 250)
 				return;
@@ -273,7 +275,19 @@ namespace Ultimate_Carry_Prevolution.Plugin
 				_passivTimer = Environment.TickCount;
 				W.Cast(target, UsePackets());
 			}
-
+			if(W.GetPrediction(target).Hitchance != HitChance.Collision)
+				return;
+			var collisionMinions = W.GetCollision(MyHero.Position.To2D(), new List<Vector2>() { target.Position.To2D() });
+			Obj_AI_Base[] nearstMinion = { null };
+			foreach(var collmin in collisionMinions.Where(collminion => nearstMinion[0] == null || collminion.Distance(MyHero) < nearstMinion[0].Distance(MyHero)))
+			{
+				nearstMinion[0] = collmin;
+			}
+			if(!(target.Distance(nearstMinion[0]) < W.Width + 220))
+				return;
+			W.UpdateSourcePosition();
+			_passivTimer = Environment.TickCount;
+			W.Cast(target, UsePackets());
 		}
 		private void Cast_E(bool mode)
 		{
