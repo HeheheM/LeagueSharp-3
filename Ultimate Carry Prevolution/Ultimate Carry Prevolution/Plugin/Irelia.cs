@@ -388,7 +388,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                         dmg += MyHero.GetSpellDamage(minion, SpellSlot.W);
                     
 
-                    if (dmg > minion.Health + 55)
+                    if (dmg > minion.Health + 35)
                     {
                         if (IsSpellActive("LastHit_Tower_Q"))
                         {
@@ -398,9 +398,9 @@ namespace Ultimate_Carry_Prevolution.Plugin
                                 return;
                             }
                         }
+                        else
+                            Q.Cast(minion, UsePackets());
                     }
-                    else if (MyHero.GetSpellDamage(minion, SpellSlot.Q) > minion.Health + 55)
-                        Q.Cast(minion, UsePackets());
                 }
             }
         }
