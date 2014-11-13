@@ -322,13 +322,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     if (Utility.UnderTurret(target, true))
                         return;
 
-                if (MyHero.Distance(target) > Min_Distance && MyHero.Distance(target) < Q.Range)
-                {
-                    Q.Cast(target, UsePackets());
-                    return;
-                }
-
-                if (MyHero.Distance(target) > Q.Range)
+                if (MyHero.Distance(target) > Q.Range/2)
                 {
                     var allMinionQ = MinionManager.GetMinions(MyHero.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
 
@@ -357,6 +351,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                             if (dmg2 > Best_Minion.Health)
                             {
                                 Q.Cast(Best_Minion, UsePackets());
+                                return;
                             }
 
                             if (W.IsReady() || MyHero.HasBuff("ireliahitenstylecharged", true))
@@ -366,9 +361,15 @@ namespace Ultimate_Carry_Prevolution.Plugin
                             {
                                 W.Cast(UsePackets());
                                 Q.Cast(Best_Minion, UsePackets());
+                                return;
                             }
                         }
                     }
+                }
+
+                if (MyHero.Distance(target) > Min_Distance && MyHero.Distance(target) < Q.Range)
+                {
+                    Q.Cast(target, UsePackets());
                 }
             }
         }
