@@ -36,12 +36,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
             W.SetSkillshot(0, 140f, 2000f, false, SkillshotType.SkillshotCircle);
 
             E = new Spell(SpellSlot.E, 700);
-            E.SetSkillshot(250, (float)(45 * 0.5), 2500f, false, SkillshotType.SkillshotCircle);
+            E.SetSkillshot(200, (float)(45 * 0.5), 2500f, false, SkillshotType.SkillshotCircle);
 
             R = new Spell(SpellSlot.R, 675);
 
             QE = new Spell(SpellSlot.Q, 1250);
-            QE.SetSkillshot(400, 60f, 1000f, false, SkillshotType.SkillshotCircle);
+            QE.SetSkillshot(200, 60f, 1000f, false, SkillshotType.SkillshotCircle);
 
         }
 
