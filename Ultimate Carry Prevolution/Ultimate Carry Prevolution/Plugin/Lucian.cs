@@ -283,6 +283,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					{
 						Q.Cast(target, UsePackets());
 						UsedSkill();
+						return;
 					}
 				}
 				target = SimpleTs.GetTarget(Q2.Range, SimpleTs.DamageType.Physical);
@@ -332,10 +333,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		}
 		private void Cast_E(bool mode)
 		{
+			if(!E.IsReady() || !_canUseSpells)
+				return;
 			if (mode)
 			{
-				if(!E.IsReady() || !_canUseSpells )
-					return;
 				var target = SimpleTs.GetTarget(1100, SimpleTs.DamageType.Physical);
 				if (target == null)
 					return;
