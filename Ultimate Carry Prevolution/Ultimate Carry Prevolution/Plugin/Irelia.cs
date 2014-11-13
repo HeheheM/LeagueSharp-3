@@ -367,7 +367,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     }
                 }
 
-                if (MyHero.Distance(target) > Min_Distance && MyHero.Distance(target) < Q.Range)
+                if (MyHero.Distance(target) > Min_Distance && MyHero.Distance(target) < Q.Range + target.BoundingRadius)
                 {
                     Q.Cast(target, UsePackets());
                 }
