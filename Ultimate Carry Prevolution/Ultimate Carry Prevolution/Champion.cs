@@ -148,7 +148,7 @@ namespace Ultimate_Carry_Prevolution
 			var target = SimpleTs.GetTarget(spell.Range + extrarange, prio);
 			if(target == null)
 				return null;
-			if(!target.IsValidTarget(spell.Range + extrarange) || spell.GetPrediction(target).Hitchance < HitChance.Medium)
+			if(!target.IsValidTarget(spell.Range + extrarange) || spell.GetPrediction(target).Hitchance < HitChance.High)
 				return null;
 			spell.UpdateSourcePosition();
 			spell.Cast(target, UsePackets());

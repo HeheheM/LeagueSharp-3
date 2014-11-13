@@ -40,7 +40,7 @@ namespace Ultimate_Carry_Prevolution
 				// ReSharper disable once EmptyGeneralCatchClause
 			catch (Exception ex)
 			{
-				Game.PrintChat(ex.Message);
+				//Game.PrintChat(ex.Message);
 				return false;
 			}
 		}
