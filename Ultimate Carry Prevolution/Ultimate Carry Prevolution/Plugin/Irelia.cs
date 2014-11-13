@@ -56,6 +56,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     {
                         rMenu.AddItem(new MenuItem("R_If_HP", "R If HP <=").SetValue(new Slider(20, 0, 100)));
                         //rMenu.AddItem(new MenuItem("R_Wait_Sheen", "Wait for Sheen").SetValue(false));
+
+                        SpellMenu.AddSubMenu(rMenu);
                     }
 
                     champMenu.AddSubMenu(SpellMenu);
