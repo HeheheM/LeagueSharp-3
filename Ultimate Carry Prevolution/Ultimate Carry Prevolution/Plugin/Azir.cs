@@ -437,8 +437,8 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		{
 			Obj_AI_Hero target = null;
 
-			if(Hud.SelectedUnit.Type == GameObjectType.obj_AI_Hero)
-				target = (Obj_AI_Hero)Hud.SelectedUnit;
+			if(SimpleTs.GetSelectedTarget() != null)
+                target = SimpleTs.GetSelectedTarget();
 
 			if(target == null || !target.IsEnemy || target.Type != GameObjectType.obj_AI_Hero)
 				return;
