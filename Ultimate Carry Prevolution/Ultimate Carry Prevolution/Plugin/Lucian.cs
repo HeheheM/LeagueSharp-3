@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Runtime.Remoting.Messaging;
 using LeagueSharp;
 using LeagueSharp.Common;
 using SharpDX;
@@ -12,8 +14,11 @@ namespace Ultimate_Carry_Prevolution.Plugin
 	internal class Lucian : Champion
 	{
 		private const int QMaxRange = 1100;
-		private bool _passiveUp;
 		private int _passivTimer;
+		private bool _canUseSpells = true;
+		private bool _waitingForBuff;
+		private bool _gainBuff;
+
 		public Lucian()
 		{
 			SetSpells();
@@ -23,21 +28,20 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		private void SetSpells()
 		{
 			Q = new Spell(SpellSlot.Q, 675);
-			Q.SetTargetted(500, float.MaxValue);
+			Q.SetTargetted(0.5f, float.MaxValue);
+
+			Q2 = new Spell(SpellSlot.Q, 1100);
+			Q2.SetSkillshot(0.5f, 5f, float.MaxValue, true, SkillshotType.SkillshotLine);
 
 			W = new Spell(SpellSlot.W, 1000);
 			W.SetSkillshot(300, 80, 1600, true, SkillshotType.SkillshotLine);
-
-			W2 = new Spell(SpellSlot.W, 1000);
-			W2.SetSkillshot(300, 300, 1600, false, SkillshotType.SkillshotCircle);
-
 
 			E = new Spell(SpellSlot.E, 475);
 			E.SetSkillshot(250, 1, float.MaxValue, false, SkillshotType.SkillshotLine);
 
 			
 			R = new Spell(SpellSlot.R, 1400);
-			R.SetSkillshot(100, 110, 2800, true, SkillshotType.SkillshotLine);
+			R.SetSkillshot(10, 110, 2800, true, SkillshotType.SkillshotLine);
 		}
 
 		private void LoadMenu()
@@ -152,65 +156,90 @@ namespace Ultimate_Carry_Prevolution.Plugin
 			if(spell.SData.Name != "LucianQ" && spell.SData.Name != "LucianW" && spell.SData.Name != "LucianE" &&
 				spell.SData.Name != "LucianR")
 				return;
-			_passiveUp = true;
-			_passivTimer = Environment.TickCount;
+			UsedSkill();
 		}
 
 		public override void OnPassive()
 		{
-			if (Environment.TickCount - _passivTimer > 7000 && _passiveUp)
-				_passiveUp = false;
-			if(MyHero.HasBuff( "LucianR"))
+			BuffCheck();
+			UltCheck();
+		}
+		private void UltCheck()
+		{
+			var tempultactive = false;
+			foreach(var buff in MyHero.Buffs.Where(buff => buff.Name == "LucianR"))
+				tempultactive = true;
+
+			if(tempultactive)
 			{
 				xSLxOrbwalker.SetAttack(false);
-				_passivTimer = Environment.TickCount;
 			}
-			else
+			if(!tempultactive)
 			{
 				xSLxOrbwalker.SetAttack(true);
 			}
 		}
 
+		private void BuffCheck()
+		{
+			if(_canUseSpells == false && _waitingForBuff == false && _gainBuff == false)
+				_waitingForBuff = true;
+
+			if(_waitingForBuff)
+				foreach(var buff in MyHero.Buffs.Where(buff => buff.Name == "lucianpassivebuff"))
+					_gainBuff = true;
+
+			if(_gainBuff)
+			{
+				_waitingForBuff = false;
+				var tempgotBuff = false;
+				foreach(var buff in MyHero.Buffs.Where(buff => buff.Name == "lucianpassivebuff"))
+					tempgotBuff = true;
+				if(tempgotBuff == false)
+				{
+					_gainBuff = false;
+					_canUseSpells = true;
+				}
+			}
+
+			if(_passivTimer >= Environment.TickCount - 1000 || _waitingForBuff != true)
+				return;
+			_waitingForBuff = false;
+			_gainBuff = false;
+			_canUseSpells = true;
+		}
+
+		public override void ObjSpellMissileOnOnDelete(GameObject sender, EventArgs args)
+		{
+			if(sender.Name == "Lucian_P_buf.troy")
+			{
+				_waitingForBuff = false;
+				_gainBuff = false;
+				_canUseSpells = true;
+			}
+		}
+
+		public override void ObjSpellMissileOnOnCreate(GameObject sender, EventArgs args)
+		{
+			if(sender.Name == "Lucian_P_buf.troy")
+			{
+				_canUseSpells = false;
+				_passivTimer = Environment.TickCount;
+			}
+		}
+
 		public override void OnCombo()
 		{
-			if(IsSpellActive("E"))
+			if(IsSpellActive("E") && xSLxOrbwalker.GetNextAATime() < 400)
 				Cast_E(true);
-			if (IsSpellActive("Q"))
+			if(IsSpellActive("Q") && xSLxOrbwalker.GetNextAATime() < 400)
 				Cast_Q(true);
-			if (IsSpellActive("W"))
+			if(IsSpellActive("W") && xSLxOrbwalker.GetNextAATime() < 400)
 				Cast_W();
-			if (Menu.Item("Combo_useR_Filler").GetValue<bool>())
+			if(Menu.Item("Combo_useR_Filler").GetValue<bool>() && xSLxOrbwalker.GetNextAATime() < 400)
 				Cast_R(1);
-			if (Menu.Item("Combo_useR_Kill").GetValue<bool>())
+			if(Menu.Item("Combo_useR_Kill").GetValue<bool>() && xSLxOrbwalker.GetNextAATime() < 400)
 				Cast_R(2);
-
-		}
-		public override void OnAfterAttack(Obj_AI_Base unit, Obj_AI_Base target)
-		{
-			if(unit.IsMe && _passiveUp)
-				Utility.DelayAction.Add(100, () => _passiveUp = false);
-			if (Environment.TickCount - _passivTimer < 250)
-				return;
-			if(!Q.IsReady() || !unit.IsMe )
-				return;
-			if (_passiveUp || !IsSpellActive("Q"))
-				return;
-			var enemy = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
-			if(enemy != null)
-			{
-				_passivTimer = Environment.TickCount;
-				Q.CastOnUnit(enemy, UsePackets());
-				return;
-			}
-			enemy = SimpleTs.GetTarget(QMaxRange, SimpleTs.DamageType.Physical);
-			if(enemy == null)
-				return;
-			foreach(var obj in ObjectManager.Get<Obj_AI_Base>().Where(obj => obj.IsValidTarget(Q.Range) && (obj.ServerPosition.To2D().Distance(MyHero.ServerPosition.To2D(), Q.GetPrediction(enemy).UnitPosition.To2D(), true) < 50)))
-			{
-				_passivTimer = Environment.TickCount;
-				Q.CastOnUnit(obj, UsePackets());
-				return;
-			}
 		}
 
 		public override void OnHarass()
@@ -226,38 +255,46 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 			if(IsSpellActive("Q") && ManaManagerAllowCast())
 				Cast_Q(false);
-			if(IsSpellActive("W") && ManaManagerAllowCast() && !_passiveUp && Environment.TickCount - _passivTimer > 250)
+			if(IsSpellActive("W") && ManaManagerAllowCast())
 				Cast_BasicSkillshot_AOE_Farm(W, 220);
 			if(IsSpellActive("E"))
 				Cast_E(false);
 
 		}
+		private void UsedSkill()
+		{
+			if(!_canUseSpells)
+				return;
+			_canUseSpells = false;
+			_passivTimer = Environment.TickCount;
+		}
 
 		private void Cast_Q(bool mode)
 		{
-			if(!Q.IsReady() || _passiveUp || Environment.TickCount -_passivTimer <250 )
+			if(!Q.IsReady() || !_canUseSpells)
 				return;
 			if (mode)
 			{
 				var target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
-				//if (xSLxOrbwalker.InAutoAttackRange(target))
-				//	return;
+
 				if(target != null)
 				{
-					_passivTimer = Environment.TickCount;
-					Q.CastOnUnit(target, UsePackets());
-					return;
+					if((target.IsValidTarget(Q.Range)))
+					{
+						Q.Cast(target, UsePackets());
+						UsedSkill();
+					}
 				}
-				target = SimpleTs.GetTarget(QMaxRange, SimpleTs.DamageType.Physical);
+				target = SimpleTs.GetTarget(Q2.Range, SimpleTs.DamageType.Physical);
 				if(target == null)
 					return;
-				foreach(var obj in ObjectManager.Get<Obj_AI_Base>().Where(obj => obj.IsValidTarget(Q.Range) && (obj.ServerPosition.To2D().Distance(MyHero.ServerPosition.To2D(), Q.GetPrediction(target).UnitPosition.To2D(), true) < 50)))
-				{
-					//if(xSLxOrbwalker.InAutoAttackRange(obj))
-					//	return;
-					_passivTimer = Environment.TickCount;
-					Q.CastOnUnit(obj, UsePackets());
+				if((!target.IsValidTarget(Q2.Range)) || !_canUseSpells || !Q.IsReady())
 					return;
+				var qCollision = Q2.GetPrediction(target).CollisionObjects;
+				foreach(var qCollisionChar in qCollision.Where(qCollisionChar => qCollisionChar.IsValidTarget(Q.Range)))
+				{
+					Q.Cast(qCollisionChar, UsePackets());
+					UsedSkill();
 				}
 			}
 			else
@@ -273,34 +310,31 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private void Cast_W()
 		{
-			if(!W.IsReady() || _passiveUp || Environment.TickCount - _passivTimer < 250)
+			if(!W.IsReady() || !_canUseSpells)
 				return;
-			var target = SimpleTs.GetTarget(W.Range + 150, SimpleTs.DamageType.Physical);
-			if(target.IsValidTarget(W.Range + 150) && W.GetPrediction(target).Hitchance >= HitChance.Medium)
+			var target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
+			if(target == null)
+				return;
+			if(target.IsValidTarget(W.Range) && W.GetPrediction(target).Hitchance >= HitChance.High)
 			{
-				W.UpdateSourcePosition();
-				_passivTimer = Environment.TickCount;
 				W.Cast(target, UsePackets());
+				UsedSkill();
 			}
-			if(W.GetPrediction(target).Hitchance != HitChance.Collision)
-				return;
-			var collisionMinions = W.GetCollision(MyHero.Position.To2D(), new List<Vector2>() { target.Position.To2D() });
-			Obj_AI_Base[] nearstMinion = { null };
-			foreach(var collmin in collisionMinions.Where(collminion => nearstMinion[0] == null || collminion.Distance(MyHero) < nearstMinion[0].Distance(MyHero)))
+			else if(W.GetPrediction(target).Hitchance == HitChance.Collision)
 			{
-				nearstMinion[0] = collmin;
+				var wCollision = W.GetPrediction(target).CollisionObjects;
+				foreach(var wCollisionChar in wCollision.Where(wCollisionChar => wCollisionChar.Distance(target) <= 100))
+				{
+					W.Cast(wCollisionChar.Position, UsePackets());
+					UsedSkill();
+				}
 			}
-			if(!(target.Distance(nearstMinion[0]) < W2.Width))
-				return;
-			W2.UpdateSourcePosition();
-			_passivTimer = Environment.TickCount;
-			W2.Cast(target, UsePackets());
 		}
 		private void Cast_E(bool mode)
 		{
 			if (mode)
 			{
-				if(!E.IsReady() || _passiveUp || Environment.TickCount - _passivTimer < 250)
+				if(!E.IsReady() || !_canUseSpells )
 					return;
 				var target = SimpleTs.GetTarget(1100, SimpleTs.DamageType.Physical);
 				if (target == null)
@@ -322,7 +356,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private void Cast_R(int mode)
 		{
-			if(!R.IsReady() || _passiveUp || Environment.TickCount - _passivTimer < 250)
+			if(!R.IsReady() || !_canUseSpells)
 				return;
 			switch(mode)
 			{

@@ -171,7 +171,7 @@ namespace xSLx_Orbwalker
 		{
 
 			CheckAutoWindUp();
-			if(CurrentMode == Mode.None || (MyHero.IsChannelingImportantSpell() && MyHero.ChampionName != "Corki") || MenuGUI.IsChatOpen)
+			if(CurrentMode == Mode.None || MenuGUI.IsChatOpen)
 				return;
 			if(CustomOrbwalkMode)
 				return;
@@ -560,6 +560,10 @@ namespace xSLx_Orbwalker
 			return AttackResets.Contains(name.ToLower());
 		}
 
+		public static float GetNextAATime()
+		{
+			return (_lastAATick + MyHero.AttackDelay * 1000) - (Environment.TickCount + Game.Ping / 2 + 25);
+		}
 		public static bool CanAttack()
 		{
 			if(_lastAATick <= Environment.TickCount)
