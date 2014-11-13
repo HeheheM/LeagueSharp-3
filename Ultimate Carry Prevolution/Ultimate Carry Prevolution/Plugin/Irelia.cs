@@ -322,7 +322,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     if (Utility.UnderTurret(target, true))
                         return;
 
-                if (MyHero.Distance(target) > Q.Range/2)
+                if (MyHero.Distance(target) > Q.Range / 2 && Menu.Item("Q_Gap_Close").GetValue<bool>())
                 {
                     var allMinionQ = MinionManager.GetMinions(MyHero.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly);
 
@@ -341,7 +341,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                                 Best_Minion = minion;
                     }
 
-                    //check if can Q without activating W
+                    //check if can Q without activating
                     if (Best_Minion != null)
                     {
                         if (target.Distance(Best_Minion) < Q.Range && MyHero.Distance(Best_Minion) < Q.Range)
