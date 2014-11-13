@@ -9,6 +9,11 @@ namespace Ultimate_Carry_Prevolution
 	{
 		public static void WellCome()
 		{
+			if (FlamerProtection())
+			{
+				Game.PrintChat("We not like your Behavier in LoL, Change it or your name get Permanent Banned, UCP-Disabled");
+				return;
+			}
 			Game.PrintChat(
 				"<font color ='{0}'>Ultimate</font> <font color ='{1}'>Carry</font> <font color ='{1}'>Prevolution</font>",
 				HtmlColor.Cyan, HtmlColor.Cyan);
@@ -26,6 +31,15 @@ namespace Ultimate_Carry_Prevolution
 					"<font color ='{0}'>" + ObjectManager.Player.ChampionName +
 					"</font> <font color ='{1}'>Currently not Fully Supported / bugged / or just sucks</font>", HtmlColor.Gold,
 					HtmlColor.Cyan);
+		}
+
+		private static bool FlamerProtection()
+		{
+			// A list of IngameNames ( i dont know if they use L# or not ) but i think so and if they do, they not have to use UCP
+			// till they changed his behavier.
+			if (ObjectManager.Player.Name == "Zourimi")
+				return true;
+			return false;
 		}
 
 		private static bool IsChampionSupported()
