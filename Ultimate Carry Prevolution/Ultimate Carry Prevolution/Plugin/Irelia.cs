@@ -342,7 +342,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                         if (W.IsReady() || MyHero.HasBuff("ireliahitenstylecharged", true))
                             dmg += MyHero.GetSpellDamage(minion, SpellSlot.W);
 
-                        if (target.Distance(minion) < Q.Range && MyHero.Distance(minion) < Q.Range && dmg > minion.Health + 30)
+                        if (target.Distance(minion) < Q.Range && MyHero.Distance(minion) < Q.Range && target.Distance(minion) < target.Distance(MyHero) && dmg > minion.Health + 30)
                             if (target.Distance(minion) < target.Distance(Best_Minion))
                                 Best_Minion = minion;
                     }
