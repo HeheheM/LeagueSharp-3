@@ -263,8 +263,6 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		}
 		private void UsedSkill()
 		{
-			if(!_canUseSpells)
-				return;
 			_canUseSpells = false;
 			_passivTimer = Environment.TickCount;
 		}
