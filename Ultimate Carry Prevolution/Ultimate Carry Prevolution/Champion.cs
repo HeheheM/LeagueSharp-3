@@ -27,6 +27,9 @@ namespace Ultimate_Carry_Prevolution
 
         //items & Summoners
         public static Items.Item DFG = Utility.Map.GetMap()._MapType == Utility.Map.MapType.TwistedTreeline ? new Items.Item(3188, 750) : new Items.Item(3128, 750);
+	    public static Items.Item Botrk = new Items.Item(3153, 450);
+        public static Items.Item Bilge = new Items.Item(3144, 450);
+
         public static SpellSlot Ignite = ObjectManager.Player.GetSpellSlot("SummonerDot");
 
 		public static Menu Menu;
@@ -120,6 +123,17 @@ namespace Ultimate_Carry_Prevolution
                 DFG.Cast(target);
 	    }
 
+        public void Use_Botrk(Obj_AI_Hero target)
+        {
+            if (target != null && Botrk.IsReady() && MyHero.Distance(target) < 450)
+                Botrk.Cast(target);
+        }
+
+	    public void Use_Bilge(Obj_AI_Hero target)
+	    {
+	        if(target != null && Bilge.IsReady() && MyHero.Distance(target) < 450)
+                Bilge.Cast(target);
+	    }
 	    public void Use_Ignite(Obj_AI_Hero target)
 	    {
 	        if (target != null && Ignite != SpellSlot.Unknown &&

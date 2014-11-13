@@ -95,6 +95,7 @@
     <Compile Include="Plugin\Corki.cs" />
     <Compile Include="Plugin\Fiora.cs" />
     <Compile Include="Plugin\Gnar.cs" />
+    <Compile Include="Plugin\Irelia.cs" />
     <Compile Include="Plugin\Jinx.cs" />
     <Compile Include="Plugin\Leona.cs" />
     <Compile Include="Plugin\Lucian.cs" />
