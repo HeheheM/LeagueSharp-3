@@ -92,6 +92,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 var harassMenu = new Menu("Harass", "Harass");
                 {
                     AddSpelltoMenu(harassMenu, "Q", true);
+                    harassMenu.AddItem(new MenuItem("Q_Auto_Harass", "Q Harass Toggle").SetValue(new KeyBind("N".ToCharArray()[0], KeyBindType.Press)));
                     AddSpelltoMenu(harassMenu, "QE", true, "Use QE");
                     AddSpelltoMenu(harassMenu, "W", true);
                     AddSpelltoMenu(harassMenu, "E", true);
@@ -223,6 +224,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         public override void OnPassive()
         {
+            if (Menu.Item("Q_Auto_Harass").GetValue<KeyBind>().Active)
+            {
+                Cast_Q();
+            }
 
             if (Menu.Item("Misc_QE_Mouse").GetValue<KeyBind>().Active)
             {
