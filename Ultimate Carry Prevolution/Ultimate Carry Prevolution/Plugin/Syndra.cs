@@ -38,10 +38,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
             E = new Spell(SpellSlot.E, 700);
             E.SetSkillshot(200, (float)(45 * 0.5), 2500f, false, SkillshotType.SkillshotCircle);
 
-            R = new Spell(SpellSlot.R, 675);
+            R = new Spell(SpellSlot.R, 750);
 
             QE = new Spell(SpellSlot.Q, 1250);
-            QE.SetSkillshot(200, 60f, 1000f, false, SkillshotType.SkillshotCircle);
+            QE.SetSkillshot(0, 60f, 1000f, false, SkillshotType.SkillshotCircle);
 
         }
 
@@ -241,9 +241,6 @@ namespace Ultimate_Carry_Prevolution.Plugin
         {
             var Q_Target = SimpleTs.GetTarget(650, SimpleTs.DamageType.Magical);
 
-            if (IsSpellActive("R") && R.IsReady())
-                Cast_R();
-
             if (IsSpellActive("Q") && Q.IsReady())
                 Cast_Q();
 
@@ -256,12 +253,14 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     MyHero.SummonerSpellbook.CanUseSpell(Ignite) == SpellState.Ready)
                 Use_Ignite(Q_Target);
 
-            if (IsSpellActive("QE") && E.IsReady() && Q.IsReady())
-                Cast_QE();
-
             if (IsSpellActive("E") && E.IsReady())
                 Cast_E();
 
+            if (IsSpellActive("R") && R.IsReady())
+                Cast_R();
+
+            if (IsSpellActive("QE") && E.IsReady() && Q.IsReady())
+                Cast_QE();
 
         }
 
@@ -327,18 +326,18 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         private void Cast_Q()
         {
-            var Q_Target = SimpleTs.GetTarget(Q.Range + 100, SimpleTs.DamageType.Magical);
+            var Q_Target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
 
             Q.UpdateSourcePosition();
             if (Q.IsReady() && Q_Target != null && Q.GetPrediction(Q_Target).Hitchance >= HitChance.High)
-                Q.Cast(Q_Target, UsePackets());
+                Q.Cast(Q.GetPrediction(Q_Target).CastPosition, UsePackets());
         }
 
         private void Cast_W(bool mode)
         {
             if (mode)
             {
-                var W_Target = SimpleTs.GetTarget(W.Range + 100, SimpleTs.DamageType.Magical);
+                var W_Target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
 
                 var Grabbable_Obj = Get_Nearest_orb();
                 var W_Toggle_State = MyHero.Spellbook.GetSpell(SpellSlot.W).ToggleState;
@@ -348,18 +347,23 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     if (W_Toggle_State == 1 && Environment.TickCount - W.LastCastAttemptT > Game.Ping && W.IsReady() &&
                         Grabbable_Obj != null)
                     {
-                        W.Cast(Grabbable_Obj.ServerPosition);
-                        W.LastCastAttemptT = Environment.TickCount + 500;
-                        return;
+                        if (Grabbable_Obj.Distance(MyHero) < W.Range)
+                        {
+                            W.Cast(Grabbable_Obj.ServerPosition);
+                            W.LastCastAttemptT = Environment.TickCount + 500;
+                            return;
+                        }
                     }
 
                     W.UpdateSourcePosition(Get_Current_Orb().ServerPosition, Get_Current_Orb().ServerPosition);
+
                     if (MyHero.Distance(W_Target) < E.Range)
                     {
                         if (W_Toggle_State != 1 && W.IsReady() && W.GetPrediction(W_Target).Hitchance >= HitChance.High &&
-                            Environment.TickCount - W.LastCastAttemptT > Game.Ping + 100)
+                            Environment.TickCount - W.LastCastAttemptT > -500 + Game.Ping)
                         {
                             W.Cast(W_Target);
+                            return;
                         }
                     }
 
@@ -388,8 +392,14 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
                 var farmLocation = W.GetCircularFarmLocation(allMinionsW);
 
-                if (farmLocation.MinionsHit > 2)
+                if (farmLocation.MinionsHit > 1)
+                {
                     W.Cast(farmLocation.Position);
+                    return;
+                }
+
+                if(W_Toggle_State != 1 && W.IsReady())
+                    W.Cast(MyHero.ServerPosition, UsePackets());
             }
         }
 
@@ -407,9 +417,9 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     E.UpdateSourcePosition();
                     var Target_Pos = QE.GetPrediction(target);
 
-                    var projection = Geometry.ProjectOn(Target_Pos.UnitPosition.To2D(), Start_Pos.To2D(), End_Pos.To2D());
+                    var projection = Geometry.ProjectOn(Start_Pos.To2D(), End_Pos.To2D(), Target_Pos.UnitPosition.To2D());
 
-                    if (projection.IsOnSegment && E.IsReady() && Target_Pos.Hitchance >= HitChance.High && 
+                    if (projection.IsOnSegment && E.IsReady() && Target_Pos.Hitchance >= HitChance.Medium && 
                         projection.LinePoint.Distance(Target_Pos.UnitPosition.To2D()) < QE.Width + target.BoundingRadius)
                     {
                         E.Cast(orb.ServerPosition, UsePackets());
@@ -437,7 +447,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
         private void Cast_R()
         {
-            var R_Target = SimpleTs.GetTarget(R.Range + 100, SimpleTs.DamageType.Magical);
+            var R_Target = SimpleTs.GetTarget(R.Level > 2 ? R.Range : 675, SimpleTs.DamageType.Magical);
 
             if (R_Target != null)
             {
@@ -483,12 +493,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 QE.UpdateSourcePosition();
 
                 var QE_Pred = QE.GetPrediction(QE_Target);
-
-                var Pred_Vec = MyHero.ServerPosition + Vector3.Normalize(QE_Pred.UnitPosition - MyHero.ServerPosition)*(E.Range - 100);
+                var target_pos = Prediction.GetPrediction(QE_Target, .6f);
+                var Pred_Vec = MyHero.ServerPosition + Vector3.Normalize(target_pos.UnitPosition - MyHero.ServerPosition) * (E.Range - 100);
 
                 //Utility.DrawCircle(Pred_Vec, 50, Color.Red);
 
-                if (QE_Pred.Hitchance >= HitChance.High && Q.IsReady() && E.IsReady())
+                if (QE_Pred.Hitchance >= HitChance.Medium && Q.IsReady() && E.IsReady())
                 {
                     Q.Cast(Pred_Vec, UsePackets());
                     QE.LastCastAttemptT = Environment.TickCount;
