@@ -22,7 +22,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
             Q = new Spell(SpellSlot.Q);
 
             W = new Spell(SpellSlot.W, 1500);
-            W.SetSkillshot(0.6f, 60f, float.MaxValue, true, SkillshotType.SkillshotLine);
+            W.SetSkillshot(0.6f, 60f, 1450, true, SkillshotType.SkillshotLine);
 
             E = new Spell(SpellSlot.E, 900f);
             E.SetSkillshot(0.7f, 120f, 1750f, false, SkillshotType.SkillshotCircle);
