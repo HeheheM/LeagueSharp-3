@@ -385,6 +385,9 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 var Grabbable_Obj = Get_Nearest_orb();
                 var W_Toggle_State = MyHero.Spellbook.GetSpell(SpellSlot.W).ToggleState;
 
+                if (allMinionsW.Count < 2)
+                    return;
+                
                 if (W_Toggle_State == 1 && Environment.TickCount - W.LastCastAttemptT > Game.Ping && W.IsReady() &&
                         Grabbable_Obj != null)
                 {
@@ -402,9 +405,6 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     W.Cast(farmLocation.Position);
                     return;
                 }
-
-                if(W_Toggle_State != 1 && W.IsReady())
-                    W.Cast(MyHero.ServerPosition, UsePackets());
             }
         }
 

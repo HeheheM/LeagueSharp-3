@@ -299,12 +299,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
             if (target != null)
             {
-                if (!IsFishBoneActive() && MyHero.Distance(target.ServerPosition) < 565)
+                if (!IsFishBoneActive() && MyHero.Distance(target.ServerPosition) < 525 + MyHero.BoundingRadius + target.BoundingRadius)
                 {
                     Q.Cast();
                     return;
                 }
-                if (IsFishBoneActive() && MyHero.Distance(target.ServerPosition) > 565)
+                if (IsFishBoneActive() && MyHero.Distance(target.ServerPosition) > 25 + MyHero.BoundingRadius + target.BoundingRadius)
                     Q.Cast();
             }
         }
@@ -435,7 +435,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private bool IsFishBoneActive()
 		{
-			return MyHero.AttackRange < 565;
+			return MyHero.AttackRange < 525 + MyHero.BoundingRadius;
 		}
     }
 
