@@ -37,7 +37,7 @@ namespace Ultimate_Carry_Prevolution
 		{
 			// A list of IngameNames ( i dont know if they use L# or not ) but i think so and if they do, they not have to use UCP
 			// till they changed his behavier.
-			if (ObjectManager.Player.Name == "Zourimi")
+			if (ObjectManager.Player.Name == "Zourimi") // 13.11 ( 7 day banned )
 				return true;
 			return false;
 		}
