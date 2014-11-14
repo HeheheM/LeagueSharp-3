@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using LeagueSharp;
 using LeagueSharp.Common;
@@ -33,7 +34,7 @@ namespace Ultimate_Carry_Prevolution
         public static SpellSlot Ignite = ObjectManager.Player.GetSpellSlot("SummonerDot");
 
 		public static Menu Menu;
-
+		private int _lastsiteopend;
 		public Champion()
 		{
 
@@ -80,6 +81,12 @@ namespace Ultimate_Carry_Prevolution
 					break;
 			}
 			OnPassive();
+
+			if ( Menu.Item( "vote").GetValue< KeyBind >().Active  && Environment.TickCount -_lastsiteopend  > 10000)
+			{
+				_lastsiteopend = Environment.TickCount;
+				Process.Start("http://google.com");
+			}
 		}
 
 		private void LoadBasics()
@@ -110,6 +117,8 @@ namespace Ultimate_Carry_Prevolution
 			var orbwalkerMenu = new Menu("xSLx Orbwalker", "xSLx_Orbwalker");
 			xSLxOrbwalker.AddToMenu(orbwalkerMenu);
 			Menu.AddSubMenu(orbwalkerMenu);
+
+			Menu.AddItem( new MenuItem( "vote"," Vote Pls for UCP").SetValue(new KeyBind(112, KeyBindType.Press)));
 		}
 
 		public bool UsePackets()

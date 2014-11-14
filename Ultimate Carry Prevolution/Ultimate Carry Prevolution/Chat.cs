@@ -23,9 +23,17 @@ namespace Ultimate_Carry_Prevolution
 				"</font> <font color ='{0}'>Loading</font>",
 				HtmlColor.Cyan, HtmlColor.Gold);
 			if (IsChampionSupported())
+			{
 				Game.PrintChat(
 					"<font color ='{0}'>Loaded Plugin for </font> <font color ='{1}'>" + ObjectManager.Player.ChampionName + "</font>",
 					HtmlColor.Cyan, HtmlColor.Gold);
+
+				// ContestMessage
+				Game.PrintChat(
+					"<font color ='{0}'>Support us by Voting, a Vote is like a Donation for Free <font color ='{1}'> >>> </font> press F1 <font color ='{1}'> <<< </font></font>",
+					HtmlColor.Gold ,HtmlColor.Red );
+				// end
+			}
 			else
 				Game.PrintChat(
 					"<font color ='{0}'>" + ObjectManager.Player.ChampionName +
@@ -36,7 +44,7 @@ namespace Ultimate_Carry_Prevolution
 		private static bool FlamerProtection()
 		{
 			// A list of IngameNames ( i dont know if they use L# or not ) but i think so and if they do, they not have to use UCP
-			// till they changed his behavier.
+			// till they changed the behavier.
 			if (ObjectManager.Player.Name == "Zourimi") // 13.11 ( 7 day banned )
 				return true;
 			return false;
