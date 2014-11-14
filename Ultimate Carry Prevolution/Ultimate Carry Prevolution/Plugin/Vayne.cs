@@ -41,6 +41,7 @@ namespace Ultimate_Carry_Prevolution.Plugin
                     AddSpelltoMenu(comboMenu, "Q", true);
                     AddSpelltoMenu(comboMenu, "E", true);
                     AddSpelltoMenu(comboMenu, "R", true);
+                    AddSpelltoMenu(comboMenu, "Botrk", true, "Use Botrk/Bilge");
                     champMenu.AddSubMenu(comboMenu);
                 }
 
@@ -121,6 +122,12 @@ namespace Ultimate_Carry_Prevolution.Plugin
         private float GetComboDamage(Obj_AI_Base target)
         {
             double comboDamage = (float)ObjectManager.Player.GetComboDamage(target, GetSpellCombo());
+            if (Bilge.IsReady())
+                comboDamage += MyHero.GetItemDamage(target, Damage.DamageItems.Bilgewater);
+
+            if (Botrk.IsReady())
+                comboDamage += MyHero.GetItemDamage(target, Damage.DamageItems.Botrk);
+
             return (float)(comboDamage + ObjectManager.Player.GetAutoAttackDamage(target));
         }
 
@@ -145,6 +152,19 @@ namespace Ultimate_Carry_Prevolution.Plugin
                 Q.Cast();
             if (IsSpellActive("E"))
                 Cast_E();
+
+            var Q_Target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Physical);
+            if (Q_Target != null)
+            {
+                if (IsSpellActive("Botrk"))
+                {
+                    if (Bilge.IsReady() && (GetComboDamage(Q_Target) + MyHero.GetAutoAttackDamage(Q_Target) * 6 < Q_Target.Health || GetHealthPercent() < 35))
+                        Use_Bilge(Q_Target);
+
+                    if (Botrk.IsReady() && (GetComboDamage(Q_Target) + MyHero.GetAutoAttackDamage(Q_Target) * 6 < Q_Target.Health || GetHealthPercent() < 35))
+                        Use_Botrk(Q_Target);
+                }
+            }
             if (IsSpellActive("R"))
                 Cast_R();
         }
@@ -159,7 +179,9 @@ namespace Ultimate_Carry_Prevolution.Plugin
         {
             xSLxOrbwalker.ForcedTarget = null;
 
-            if (IsSpellActive("Q") && ManaManagerAllowCast())
+            int minion = MinionManager.GetMinions(MyHero.ServerPosition, xSLxOrbwalker.GetAutoAttackRange()).Count;
+
+            if (IsSpellActive("Q") && ManaManagerAllowCast() && minion > 0)
                 Q.Cast(Game.CursorPos);
         }
 
