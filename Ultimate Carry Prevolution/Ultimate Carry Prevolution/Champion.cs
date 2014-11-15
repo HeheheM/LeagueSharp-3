@@ -34,7 +34,7 @@ namespace Ultimate_Carry_Prevolution
         public static SpellSlot Ignite = ObjectManager.Player.GetSpellSlot("SummonerDot");
 
 		public static Menu Menu;
-		private int _lastsiteopend;
+		//private int _lastsiteopend;
 		public Champion()
 		{
 
@@ -82,11 +82,11 @@ namespace Ultimate_Carry_Prevolution
 			}
 			OnPassive();
 
-			if ( Menu.Item( "vote").GetValue< KeyBind >().Active  && Environment.TickCount -_lastsiteopend  > 10000)
-			{
-				_lastsiteopend = Environment.TickCount;
-				Process.Start("http://google.com");
-			}
+			//if ( Menu.Item( "vote").GetValue< KeyBind >().Active  && Environment.TickCount -_lastsiteopend  > 10000)
+			//{
+			//	_lastsiteopend = Environment.TickCount;
+			//	Process.Start("http://google.com");
+			//}
 		}
 
 		private void LoadBasics()
@@ -118,7 +118,7 @@ namespace Ultimate_Carry_Prevolution
 			xSLxOrbwalker.AddToMenu(orbwalkerMenu);
 			Menu.AddSubMenu(orbwalkerMenu);
 
-			Menu.AddItem( new MenuItem( "vote"," Vote Pls for UCP").SetValue(new KeyBind(112, KeyBindType.Press)));
+			//Menu.AddItem( new MenuItem( "vote"," Vote Pls for UCP").SetValue(new KeyBind(112, KeyBindType.Press)));
 		}
 
 		public bool UsePackets()
@@ -157,7 +157,7 @@ namespace Ultimate_Carry_Prevolution
 			var target = SimpleTs.GetTarget(spell.Range + extrarange, prio);
 			if(target == null)
 				return null;
-			if(!target.IsValidTarget(spell.Range + extrarange) || spell.GetPrediction(target).Hitchance < HitChance.High)
+			if(!target.IsValidTarget(spell.Range + extrarange) || spell.GetPrediction(target).Hitchance < HitChance.Medium)
 				return null;
 			spell.UpdateSourcePosition();
 			spell.Cast(target, UsePackets());

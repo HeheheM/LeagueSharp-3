@@ -28,11 +28,11 @@ namespace Ultimate_Carry_Prevolution
 					"<font color ='{0}'>Loaded Plugin for </font> <font color ='{1}'>" + ObjectManager.Player.ChampionName + "</font>",
 					HtmlColor.Cyan, HtmlColor.Gold);
 
-				// ContestMessage
-				Game.PrintChat(
-					"<font color ='{0}'>Support us by Voting, a Vote is like a Donation for Free <font color ='{1}'> >>> </font> press F1 <font color ='{1}'> <<< </font></font>",
-					HtmlColor.Gold ,HtmlColor.Red );
-				// end
+				//// ContestMessage
+				//Game.PrintChat(
+				//	"<font color ='{0}'>Support us by Voting, a Vote is like a Donation for Free <font color ='{1}'> >>> </font> press F1 <font color ='{1}'> <<< </font></font>",
+				//	HtmlColor.Gold ,HtmlColor.Red );
+				//// end
 			}
 			else
 				Game.PrintChat(
@@ -60,7 +60,8 @@ namespace Ultimate_Carry_Prevolution
 				return true;
 			}
 				// ReSharper disable once EmptyGeneralCatchClause
-			catch (Exception ex)
+			//catch (Exception ex)
+			catch(Exception)
 			{
 				//Game.PrintChat(ex.Message);
 				return false;
