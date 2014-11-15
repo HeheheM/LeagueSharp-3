@@ -79,7 +79,7 @@ namespace xSLx_Orbwalker
 			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_ExtraWindUp", "Extra Winduptime").SetValue(new Slider(80, 200, 0)));
 			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_AutoWindUp", "Autoset Windup").SetValue(false));
 			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_Priority_Unit", "Priority Unit").SetValue(new StringList(new[] { "Minion", "Hero" })));
-			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_Humanizer", "Humanizer Delay").SetValue(new Slider(80, 200, 50)));
+			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_Humanizer", "Humanizer Delay").SetValue(new Slider(80, 200, 15)));
 			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_AllMovementDisabled", "Disable All Movement").SetValue(false));
 			menuMisc.AddItem(new MenuItem("xSLxOrbwalker_Misc_AllAttackDisabled", "Disable All Attacks").SetValue(false));
 
@@ -258,13 +258,11 @@ namespace xSLx_Orbwalker
 				FireBeforeAttack(target);
 				if(!_disableNextAttack)
 				{
-					//if (Menu.Item("Harass_Lasthit").GetValue<bool>() || CurrentMode != Mode.Harass || !target.IsMinion)
-					//	if(Menu.Item("Harass_Lasthit").GetValue<bool>() || CurrentMode != Mode.Harass || !target.IsMinion)
-					//{
-						if (MyHero.IssueOrder(GameObjectOrder.AttackUnit, target))
-							//_lastAATick = Environment.TickCount + Game.Ping/2;
+					if (Menu.Item("Harass_Lasthit").GetValue<bool>() || CurrentMode != Mode.Harass || !target.IsMinion)
+					{
+						MyHero.IssueOrder(GameObjectOrder.AttackUnit, target);
 						_lastAATick = Environment.TickCount ;
-					//}
+					}
 				}
 			}
 			if(!CanMove() || !IsAllowedToMove())
@@ -291,18 +289,18 @@ namespace xSLx_Orbwalker
 				return;
 			if(holdAreaRadius < 0)
 				holdAreaRadius = Menu.Item("xSLxOrbwalker_Misc_Holdzone").GetValue<Slider>().Value;
-			if(MyHero.ServerPosition.Distance(position) < holdAreaRadius)
+			if(MyHero.Position.Distance(position) < holdAreaRadius)
 			{
 				if(MyHero.Path.Count() > 1)
-					MyHero.IssueOrder(GameObjectOrder.HoldPosition, MyHero.ServerPosition);
+					MyHero.IssueOrder(GameObjectOrder.HoldPosition, MyHero.Position);
 				return;
 			}
 			if(position.Distance(MyHero.Position) < 200)
 				MyHero.IssueOrder(GameObjectOrder.MoveTo, position);
 			else
 			{
-				var point = MyHero.ServerPosition +
-				200 * (position.To2D() - MyHero.ServerPosition.To2D()).Normalized().To3D();
+				var point = MyHero.Position +
+				200 * (position.To2D() - MyHero.Position.To2D()).Normalized().To3D();
 				MyHero.IssueOrder(GameObjectOrder.MoveTo, point);
 			}
 
@@ -346,8 +344,8 @@ namespace xSLx_Orbwalker
 		private static void OnProcessSpell(Obj_AI_Base unit, GameObjectProcessSpellCastEventArgs spell)
 		{
 			if(IsAutoAttackReset(spell.SData.Name) && unit.IsMe)
-				Utility.DelayAction.Add(250, ResetAutoAttackTimer);
-
+				Utility.DelayAction.Add(100, ResetAutoAttackTimer);
+			
 			if(!IsAutoAttack(spell.SData.Name))
 				return;
 			if(unit.IsMe)
@@ -686,7 +684,7 @@ namespace xSLx_Orbwalker
 			if(target == null)
 				return false;
 			var myRange = GetAutoAttackRange(MyHero, target);
-			return Vector2.DistanceSquared(target.ServerPosition.To2D(), MyHero.ServerPosition.To2D()) <= myRange * myRange;
+			return Vector2.DistanceSquared(target.Position.To2D(), MyHero.Position.To2D()) <= myRange * myRange;
 		}
 
 		public static Mode CurrentMode
