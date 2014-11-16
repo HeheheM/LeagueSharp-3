@@ -17,10 +17,10 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private void SetSpells()
 		{
-            Q = new Spell(SpellSlot.Q, 625);
-            W = new Spell(SpellSlot.W, 600);
-            E = new Spell(SpellSlot.E, 600);
-            R = new Spell(SpellSlot.R);
+			Q = new Spell(SpellSlot.Q, 625);
+			W = new Spell(SpellSlot.W, 600);
+			E = new Spell(SpellSlot.E, 600);
+			R = new Spell(SpellSlot.R);
 		}
 
 		private void LoadMenu()
@@ -82,15 +82,15 @@ namespace Ultimate_Carry_Prevolution.Plugin
 
 		private float GetComboDamage(Obj_AI_Base enemy)
 		{
-            var damage = 0d;
-            if (Q.IsReady())
-                damage += MyHero.GetSpellDamage(enemy, SpellSlot.Q) * 2;
-            if (W.IsReady())
-                damage += MyHero.GetSpellDamage(enemy, SpellSlot.W);
-            if (E.IsReady())
-                damage += MyHero.GetSpellDamage(enemy, SpellSlot.E);
-            if (R.IsReady())
-                damage += damage * 0.5;
+			var damage = 0d;
+			if (Q.IsReady())
+				damage += MyHero.GetSpellDamage(enemy, SpellSlot.Q) * 2;
+			if (W.IsReady())
+				damage += MyHero.GetSpellDamage(enemy, SpellSlot.W);
+			if (E.IsReady())
+				damage += MyHero.GetSpellDamage(enemy, SpellSlot.E);
+			if (R.IsReady())
+				damage += damage * 0.5;
 			return (float)(damage);
 		}
 
@@ -120,53 +120,53 @@ namespace Ultimate_Carry_Prevolution.Plugin
 		public override void OnCombo()
 		{
 
-            if (IsSpellActive("Q"))
-                Cast_Q();
-            if (IsSpellActive("R"))
-                Cast_R();
-            if (IsSpellActive("E"))
-                Cast_E();
-            if (IsSpellActive("W"))
+			if (IsSpellActive("Q"))
+				Cast_Q();
+			if (IsSpellActive("R"))
+				Cast_R();
+			if (IsSpellActive("E"))
+				Cast_E();
+			if (IsSpellActive("W"))
 				Cast_W();
-            if (IsSpellActive("Q"))
-                Cast_Q();
+			if (IsSpellActive("Q"))
+				Cast_Q();
 		}
 
 		public override void OnHarass()
 		{
-            if (IsSpellActive("Q"))
-                Cast_Q();
-            if (IsSpellActive("E"))
-                Cast_E();
-            if (IsSpellActive("W"))
-                Cast_W();
-            if (IsSpellActive("Q"))
-                Cast_Q();
+			if (IsSpellActive("Q"))
+				Cast_Q();
+			if (IsSpellActive("E"))
+				Cast_E();
+			if (IsSpellActive("W"))
+				Cast_W();
+			if (IsSpellActive("Q"))
+				Cast_Q();
 		}
 
 		public override void OnLaneClear()
 		{
-            if (IsSpellActive("Q") && ManaManagerAllowCast())
-                Cast_Q(true);
-            if (IsSpellActive("E"))
-                Cast_E(true);
+			if (IsSpellActive("Q") && ManaManagerAllowCast())
+				Cast_Q(true);
+			if (IsSpellActive("E"))
+				Cast_E(true);
 		}
 
 		public override void OnFlee()
 		{
-            if (IsSpellActive("W"))
-                Cast_W();
+			if (IsSpellActive("W"))
+				Cast_W();
 		}
 
-        private void Cast_Q(bool minion = false)
-        {
-            if (!Q.IsReady())
-                return;
+		private void Cast_Q(bool minion = false)
+		{
+			if (!Q.IsReady())
+				return;
 
-            Obj_AI_Base target;
+			Obj_AI_Base target;
 
-            if (minion)
-            {
+			if (minion)
+			{
 				var allMinions =
 					MinionManager.GetMinions(MyHero.ServerPosition, Q.Range, MinionTypes.All, MinionTeam.NotAlly).ToList();
 				var minionLastHit = allMinions.Where(x => HealthPrediction.LaneClearHealthPrediction(x, (int)Q.Delay ) < MyHero.GetSpellDamage(x, SpellSlot.Q) * 0.8).OrderBy(x => x.Health);
@@ -175,32 +175,32 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					return;
 
 				target = minionLastHit.First();
-            }
-            else
-                target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
+			}
+			else
+				target = SimpleTs.GetTarget(Q.Range, SimpleTs.DamageType.Magical);
 
-            Q.CastOnUnit(target, UsePackets());
-        }
+			Q.CastOnUnit(target, UsePackets());
+		}
 
-        private void Cast_W()
-        {
-            if (!W.IsReady())
-                return;
+		private void Cast_W()
+		{
+			if (!W.IsReady())
+				return;
 
-            var target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
+			var target = SimpleTs.GetTarget(W.Range, SimpleTs.DamageType.Magical);
 
-            W.CastOnUnit(target, UsePackets());
-        }
+			W.CastOnUnit(target, UsePackets());
+		}
 
-        private void Cast_E(bool minion = false)
-        {
-            if (!E.IsReady())
-                return;
+		private void Cast_E(bool minion = false)
+		{
+			if (!E.IsReady())
+				return;
 
-            Obj_AI_Base target;
-            
-            if (minion)
-            {
+			Obj_AI_Base target;
+			
+			if (minion)
+			{
 				var allMinions =
 					MinionManager.GetMinions(MyHero.ServerPosition, E.Range, MinionTypes.All, MinionTeam.NotAlly).ToList();
 				var minionLastHit = allMinions.Where(x => HealthPrediction.LaneClearHealthPrediction(x, (int)E.Delay ) < MyHero.GetSpellDamage(x, SpellSlot.E) * 0.8).OrderBy(x => x.Health);
@@ -209,18 +209,18 @@ namespace Ultimate_Carry_Prevolution.Plugin
 					return;
 
 				target = minionLastHit.First();
-            }
-            else
-                target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
+			}
+			else
+				target = SimpleTs.GetTarget(E.Range, SimpleTs.DamageType.Magical);
 
-            E.CastOnUnit(target, UsePackets());
-        }
+			E.CastOnUnit(target, UsePackets());
+		}
 
 		private void Cast_R()
 		{
 			if(!R.IsReady())
 				return;
-    		R.Cast();
+			R.Cast();
 		}
 	}
 }
