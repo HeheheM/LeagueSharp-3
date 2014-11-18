@@ -29,9 +29,9 @@ namespace Ultimate_Carry_Prevolution
 					HtmlColor.Cyan, HtmlColor.Gold);
 
 				//// ContestMessage
-				//Game.PrintChat(
-				//	"<font color ='{0}'>Support us by Voting, a Vote is like a Donation for Free <font color ='{1}'> >>> </font> press F1 <font color ='{1}'> <<< </font></font>",
-				//	HtmlColor.Gold ,HtmlColor.Red );
+				Game.PrintChat(
+					"<font color ='{0}'>Support us by Voting ( you need to upvote the post to ), a Vote is like a Donation for Free <font color ='{1}'> >>> </font> press F1 <font color ='{1}'> <<< </font></font>",
+					HtmlColor.Gold, HtmlColor.Red);
 				//// end
 			}
 			else

@@ -5,7 +5,7 @@ namespace Ultimate_Carry_Prevolution
 {
 	class Loader
 	{
-		public const string VersionNumber = "1.0";
+		public const string VersionNumber = "1.1";
 
 		public Loader()
 		{
